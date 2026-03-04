@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f0a1e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Tiên Hiệp Dịch Thuật</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Vietnamese:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #07040f;
+  --bg-card: #100c1e;
+  --bg-elevated: #17122a;
+  --gold: #c9a84c;
+  --gold-light: #f0d080;
+  --gold-dim: #7a6030;
+  --jade: #4ecdc4;
+  --jade-dim: #2a7a75;
+  --crimson: #c0392b;
+  --text-primary: #e8dfc8;
+  --text-secondary: #8a7d6a;
+  --text-muted: #4a4040;
+  --border: rgba(201,168,76,0.2);
+  --border-strong: rgba(201,168,76,0.5);
+  --glow: rgba(201,168,76,0.15);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: 'Noto Sans Vietnamese', sans-serif;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 80%, rgba(78,205,196,0.05) 0%, transparent 50%);
+  pointer-events:none; z-index:0;
+}
+
+/* ===== LAYOUT ===== */
+#app { position:relative; z-index:1; max-width:480px; margin:0 auto; min-height:100dvh; display:flex; flex-direction:column; }
+
+/* ===== HEADER ===== */
+.app-header {
+  padding: 16px 20px 12px;
+  background: linear-gradient(180deg, rgba(15,10,30,0.98) 0%, rgba(15,10,30,0.85) 100%);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top:0; z-index:100;
+  backdrop-filter: blur(20px);
+}
+.header-inner { display:flex; align-items:center; justify-content:space-between; }
+.app-title {
+  font-family: 'Philosopher', serif;
+  font-size: 20px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), #a07830);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
+}
+.app-subtitle { font-size:10px; color:var(--text-secondary); letter-spacing:2px; text-transform:uppercase; margin-top:1px; }
+.header-ornament { font-size:24px; opacity:0.7; }
+
+/* ===== TABS ===== */
+.tab-bar {
+  display:flex; background:var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position:sticky; top:65px; z-index:99;
+}
+.tab-btn {
+  flex:1; padding:10px 4px; border:none; background:transparent;
+  color:var(--text-secondary); font-size:11px; font-family:inherit;
+  cursor:pointer; transition:all 0.2s; position:relative;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+}
+.tab-btn .tab-icon { font-size:18px; }
+.tab-btn.active { color:var(--gold); }
+.tab-btn.active::after {
+  content:''; position:absolute; bottom:0; left:20%; right:20%;
+  height:2px; background:var(--gold);
+  border-radius:2px 2px 0 0;
+}
+
+/* ===== VIEWS ===== */
+.view { display:none; padding:16px; flex:1; }
+.view.active { display:block; }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.card-header {
+  padding: 12px 16px;
+  background: linear-gradient(90deg, rgba(201,168,76,0.08), transparent);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Philosopher', serif;
+  font-size: 13px; color: var(--gold);
+  display:flex; align-items:center; gap:8px;
+}
+.card-body { padding:14px 16px; }
+
+/* ===== INPUTS ===== */
+.input-group { margin-bottom:12px; }
+.input-label { font-size:11px; color:var(--text-secondary); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; display:block; }
+.input-field, .textarea-field {
+  width:100%; background:var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius:8px; padding:10px 12px;
+  color:var(--text-primary); font-family:inherit; font-size:14px;
+  outline:none; transition:border-color 0.2s, box-shadow 0.2s;
+  -webkit-appearance:none;
+}
+.input-field:focus, .textarea-field:focus {
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+.input-field::placeholder, .textarea-field::placeholder { color:var(--text-muted); }
+.textarea-field { resize:vertical; min-height:120px; line-height:1.6; }
+.textarea-field.output { min-height:160px; color: var(--text-primary); background:rgba(201,168,76,0.03); }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:11px 20px; border:none; border-radius:8px;
+  font-family:inherit; font-size:14px; font-weight:500;
+  cursor:pointer; transition:all 0.2s; width:100%;
+  -webkit-appearance:none; position:relative; overflow:hidden;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #c9a84c, #a07830);
+  color: #0f0a1e;
+}
+.btn-primary:active { transform:scale(0.98); filter:brightness(0.9); }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--gold);
+}
+.btn-danger { background: rgba(192,57,43,0.2); border:1px solid rgba(192,57,43,0.5); color:#e74c3c; }
+.btn-sm { padding:7px 14px; font-size:12px; width:auto; }
+.btn-group { display:flex; gap:8px; }
+
+/* ===== PROGRESS ===== */
+.progress-wrap { margin:10px 0; }
+.progress-bar {
+  height:4px; background:rgba(255,255,255,0.05);
+  border-radius:2px; overflow:hidden;
+}
+.progress-fill {
+  height:100%; background:linear-gradient(90deg, var(--gold-dim), var(--gold));
+  border-radius:2px; transition:width 0.3s;
+  position:relative;
+}
+.progress-fill::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
+.progress-text { font-size:11px; color:var(--text-secondary); text-align:center; margin-top:6px; }
+
+/* ===== STATUS BADGE ===== */
+.badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 8px; border-radius:20px; font-size:11px;
+}
+.badge-success { background:rgba(46,204,113,0.15); color:#2ecc71; border:1px solid rgba(46,204,113,0.3); }
+.badge-warning { background:rgba(243,156,18,0.15); color:#f39c12; border:1px solid rgba(243,156,18,0.3); }
+.badge-error { background:rgba(231,76,60,0.15); color:#e74c3c; border:1px solid rgba(231,76,60,0.3); }
+.badge-processing { background:rgba(201,168,76,0.15); color:var(--gold); border:1px solid var(--border); }
+
+/* ===== HISTORY LIST ===== */
+.history-item {
+  background:var(--bg-card); border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px; margin-bottom:10px;
+  cursor:pointer; transition:all 0.2s;
+}
+.history-item:active { background:var(--bg-elevated); border-color:var(--gold-dim); }
+.history-item-title { font-size:14px; font-weight:500; color:var(--text-primary); margin-bottom:4px; }
+.history-item-meta { font-size:11px; color:var(--text-secondary); display:flex; gap:12px; }
+.history-item-preview { font-size:12px; color:var(--text-muted); margin-top:6px; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.history-actions { display:flex; gap:6px; margin-top:10px; }
+
+/* ===== SETTINGS ===== */
+.setting-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.setting-row:last-child { border-bottom:none; }
+.setting-label { font-size:14px; }
+.setting-desc { font-size:11px; color:var(--text-secondary); margin-top:2px; }
+.toggle {
+  width:44px; height:24px; background:var(--bg-deep);
+  border-radius:12px; border:1px solid var(--border);
+  position:relative; cursor:pointer; transition:background 0.3s;
+}
+.toggle.on { background:var(--gold-dim); border-color:var(--gold); }
+.toggle::after {
+  content:''; position:absolute; top:3px; left:3px;
+  width:16px; height:16px; background:#fff;
+  border-radius:50%; transition:transform 0.3s;
+  box-shadow:0 1px 3px rgba(0,0,0,0.4);
+}
+.toggle.on::after { transform:translateX(20px); }
+
+/* ===== ORNAMENTS ===== */
+.divider {
+  display:flex; align-items:center; gap:10px;
+  margin:14px 0; color:var(--text-muted); font-size:12px;
+}
+.divider::before, .divider::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+.ornament-line {
+  text-align:center; color:var(--gold-dim);
+  font-size:18px; letter-spacing:8px; margin:8px 0;
+}
+
+/* ===== CHUNK RESULT ===== */
+.chunk-result {
+  background:var(--bg-deep); border:1px solid var(--border);
+  border-radius:8px; padding:12px; margin-bottom:8px;
+}
+.chunk-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.chunk-num { font-size:11px; color:var(--text-secondary); }
+.chunk-text { font-size:13px; line-height:1.8; color:var(--text-primary); white-space:pre-wrap; }
+
+/* ===== LOADING OVERLAY ===== */
+#loading-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(7,4,15,0.85); backdrop-filter:blur(8px);
+  z-index:1000; align-items:center; justify-content:center;
+  flex-direction:column; gap:16px;
+}
+#loading-overlay.show { display:flex; }
+.loading-spinner {
+  width:48px; height:48px; border-radius:50%;
+  border:2px solid rgba(201,168,76,0.2);
+  border-top-color:var(--gold);
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.loading-text { color:var(--gold); font-family:'Philosopher',serif; font-size:16px; }
+.loading-sub { color:var(--text-secondary); font-size:12px; }
+
+/* ===== TOAST ===== */
+#toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--bg-elevated); border:1px solid var(--border);
+  color:var(--text-primary); padding:10px 20px; border-radius:20px;
+  font-size:13px; opacity:0; transition:all 0.3s; z-index:999;
+  white-space:nowrap; max-width:90vw;
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ===== EMPTY STATE ===== */
+.empty-state { text-align:center; padding:48px 20px; color:var(--text-muted); }
+.empty-icon { font-size:48px; margin-bottom:12px; opacity:0.5; }
+.empty-text { font-size:14px; line-height:1.6; }
+
+/* ===== MODAL ===== */
+.modal-backdrop {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.7); backdrop-filter:blur(6px);
+  z-index:500; align-items:flex-end;
+}
+.modal-backdrop.show { display:flex; }
+.modal {
+  background:var(--bg-elevated); border:1px solid var(--border);
+  border-radius:20px 20px 0 0; padding:20px;
+  width:100%; max-height:85dvh; overflow-y:auto;
+  animation:slideUp 0.3s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-title {
+  font-family:'Philosopher',serif; font-size:17px;
+  color:var(--gold); margin-bottom:16px;
+  padding-bottom:12px; border-bottom:1px solid var(--border);
+}
+
+/* ===== COPY BUTTON ===== */
+.copy-btn {
+  position:absolute; top:8px; right:8px;
+  background:rgba(201,168,76,0.15); border:1px solid var(--border);
+  color:var(--gold); border-radius:6px; padding:4px 8px;
+  font-size:11px; cursor:pointer;
+}
+.textarea-wrap { position:relative; }
+
+/* ===== RESPONSIVE BOTTOM NAV SAFE AREA ===== */
+.bottom-safe { height: env(safe-area-inset-bottom, 0px); }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <div class="app-header">
+    <div class="header-inner">
+      <div>
+        <div class="app-title">⚔️ Tiên Hiệp Dịch Thuật</div>
+        <div class="app-subtitle">Convert → Thuần Việt</div>
+      </div>
+      <div class="header-ornament">🐉</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="translate" onclick="goTab(this)">
+      <span class="tab-icon">✨</span>Dịch
+    </button>
+    <button class="tab-btn" data-tab="history" onclick="goTab(this)">
+      <span class="tab-icon">📚</span>Lịch sử
+    </button>
+    <button class="tab-btn" data-tab="settings" onclick="goTab(this)">
+      <span class="tab-icon">⚙️</span>Cài đặt
+    </button>
+  </div>
+
+  <!-- ========== VIEW: DỊCH ========== -->
+  <div id="view-translate" class="view active">
+
+    <!-- Banner cảnh báo chưa có API key -->
+    <div id="api-key-banner" style="display:none;background:rgba(192,57,43,0.12);border:1px solid rgba(192,57,43,0.4);border-radius:10px;padding:12px 14px;margin-bottom:14px;cursor:pointer" onclick="goTabByName('settings')">
+      <div style="font-size:13px;color:#e74c3c;font-weight:600">⚠️ Chưa cấu hình API Key</div>
+      <div style="font-size:11px;color:var(--text-secondary);margin-top:3px">Nhấn vào đây để cài đặt Gemini API Key → mới dịch được</div>
+    </div>
+
+    <!-- Nguồn đầu vào -->
+    <div class="card">
+      <div class="card-header">📥 Nguồn văn bản</div>
+      <div class="card-body">
+        <div class="input-group">
+          <label class="input-label">Nhập URL trang truyện convert</label>
+          <div style="display:flex;gap:8px">
+            <input type="url" id="url-input" class="input-field" placeholder="https://..." style="flex:1">
+            <button class="btn btn-secondary btn-sm" onclick="fetchFromUrl()" style="white-space:nowrap">Tải</button>
+          </div>
+        </div>
+
+        <div class="divider">hoặc dán trực tiếp</div>
+
+        <div class="input-group">
+          <label class="input-label">Văn bản convert thô</label>
+          <div class="textarea-wrap">
+            <textarea id="raw-input" class="textarea-field" placeholder="Dán bản dịch convert vào đây...&#10;&#10;Ví dụ: Lý Mộ Bạch cảm thấy một luồng khí lực đột nhiên bùng lên trong đan điền, y lập tức ngồi xuống tĩnh tọa..."></textarea>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Tên chương (để lưu lịch sử)</label>
+          <input type="text" id="chapter-name" class="input-field" placeholder="VD: Chương 123 - Đột Phá Kim Đan">
+        </div>
+
+        <button class="btn btn-primary" id="btn-translate" onclick="startTranslation()">
+          ✨ Bắt đầu hiệu đính
+        </button>
+      </div>
+    </div>
+
+    <!-- Progress -->
+    <div id="progress-section" style="display:none" class="card">
+      <div class="card-header">⚡ Đang xử lý</div>
+      <div class="card-body">
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+          <div class="progress-text" id="progress-text">Chuẩn bị...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kết quả -->
+    <div id="result-section" style="display:none" class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>📜 Kết quả hiệu đính</span>
+        <span id="result-badge" class="badge badge-success">✓ Hoàn thành</span>
+      </div>
+      <div class="card-body">
+        <div class="textarea-wrap">
+          <textarea id="result-output" class="textarea-field output" readonly></textarea>
+          <button class="copy-btn" onclick="copyResult()">📋 Sao chép</button>
+        </div>
+        <div id="qa-info" style="font-size:11px; color:var(--text-secondary); margin:8px 0;"></div>
+        <div class="btn-group" style="margin-top:10px">
+          <button class="btn btn-secondary" onclick="saveToHistory()">💾 Lưu</button>
+          <button class="btn btn-secondary" onclick="resetForm()">🔄 Dịch mới</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========== VIEW: LỊCH SỬ ========== -->
+  <div id="view-history" class="view">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <div style="font-family:'Philosopher',serif;font-size:16px;color:var(--gold)">📚 Chương đã dịch</div>
+      <button class="btn btn-danger btn-sm" onclick="clearHistory()" id="btn-clear-history" style="display:none">🗑️ Xóa hết</button>
+    </div>
+    <div id="history-list"></div>
+    <div id="history-empty" class="empty-state">
+      <div class="empty-icon">📖</div>
+      <div class="empty-text">Chưa có chương nào được lưu.<br>Dịch xong, nhấn "Lưu" để lưu vào đây.</div>
+    </div>
+  </div>
+
+  <!-- ========== VIEW: CÀI ĐẶT ========== -->
+  <div id="view-settings" class="view">
+
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>🔑 API Key Gemini</span>
+        <span id="api-key-status"><span class="badge badge-error">✗ Chưa cấu hình</span></span>
+      </div>
+      <div class="card-body">
+
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;background:rgba(201,168,76,0.06);border:1px solid var(--border);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--gold)">Cách lấy API Key miễn phí:</b><br>
+          1. Mở Chrome → truy cập <b style="color:var(--jade)">aistudio.google.com</b><br>
+          2. Đăng nhập Google → chọn <b>Get API Key</b><br>
+          3. Nhấn <b>Create API Key</b> → Copy key<br>
+          4. Dán vào ô bên dưới → nhấn <b>Lưu</b>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Dán API Key vào đây</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="api-key-input" class="input-field"
+              placeholder="Dán API key vào đây..."
+              style="flex:1;font-family:monospace;font-size:13px;letter-spacing:1px"
+              oninput="document.getElementById('api-key-status').innerHTML=''">
+            <button id="btn-toggle-key" onclick="toggleShowKey()"
+              style="background:var(--bg-deep);border:1px solid var(--border);color:var(--gold);border-radius:8px;padding:10px;font-size:16px;cursor:pointer;flex-shrink:0">👁</button>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveApiKey()" style="flex:2">
+            💾 Lưu API Key
+          </button>
+          <button id="btn-test-key" class="btn btn-secondary" onclick="testApiKey()" style="flex:1">
+            🔍 Kiểm tra
+          </button>
+        </div>
+
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center">
+          🔒 Key chỉ lưu trên thiết bị này, không gửi đi đâu
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">⚙️ Tùy chọn dịch</div>
+      <div class="card-body">
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Kích thước chunk</div>
+            <div class="setting-desc">Số ký tự mỗi đoạn xử lý</div>
+          </div>
+          <select id="chunk-size" class="input-field" style="width:100px">
+            <option value="800">800</option>
+            <option value="1200" selected>1200</option>
+            <option value="1600">1600</option>
+            <option value="2000">2000</option>
+          </select>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Tự động lưu sau dịch</div>
+            <div class="setting-desc">Lưu vào lịch sử mà không cần bấm</div>
+          </div>
+          <div class="toggle" id="toggle-autosave" onclick="toggleSetting('autosave')"></div>
+        </div>
+        <div class="setting-row">
+          <div>
+            <div class="setting-label">Hiển thị QA score</div>
+            <div class="setting-desc">Kiểm tra độ trung thực nội dung</div>
+          </div>
+          <div class="toggle on" id="toggle-qa" onclick="toggleSetting('qa')"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">📝 Thuật ngữ tùy chỉnh</div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;line-height:1.6">
+          Thêm thuật ngữ bộ truyện của bạn (mỗi dòng một cặp, dùng dấu = để phân tách):<br>
+          <span style="color:var(--gold-dim)">Ví dụ: Lý Mộc Bạch = Lý Mộ Bạch</span>
+        </div>
+        <textarea id="glossary-input" class="textarea-field" placeholder="Tên sai = Tên đúng&#10;Nguyên Anh kỳ = Nguyên Anh kỳ&#10;..." style="min-height:100px;font-size:12px"></textarea>
+        <button class="btn btn-secondary" onclick="saveGlossary()" style="margin-top:8px">💾 Lưu thuật ngữ</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>⚡ Groq API Key <span style="font-size:10px;color:var(--jade)">(Miễn phí)</span></span>
+        <span id="groq-key-status"><span class="badge badge-error">✗ Chưa cấu hình</span></span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;background:rgba(78,205,196,0.06);border:1px solid rgba(78,205,196,0.2);border-radius:8px;padding:10px 12px;">
+          <b style="color:var(--jade)">Cách lấy Groq API Key miễn phí:</b><br>
+          1. Mở Chrome → <b style="color:var(--jade)">console.groq.com</b><br>
+          2. Đăng ký / đăng nhập (dùng Gmail)<br>
+          3. Vào <b>API Keys</b> → <b>Create API Key</b><br>
+          4. Copy key (bắt đầu bằng <b>gsk_...</b>) → dán vào đây
+        </div>
+        <div class="input-group">
+          <label class="input-label">Groq API Key</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="groq-key-input" class="input-field"
+              placeholder="gsk_..."
+              style="flex:1;font-family:monospace;font-size:13px;letter-spacing:1px">
+            <button onclick="toggleGroqKey()"
+              style="background:var(--bg-deep);border:1px solid var(--border);color:var(--jade);border-radius:8px;padding:10px;font-size:16px;cursor:pointer;flex-shrink:0">👁</button>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveGroqKey()" style="flex:2;background:linear-gradient(135deg,#2a7a75,#4ecdc4);color:#0f0a1e">
+            💾 Lưu Groq Key
+          </button>
+          <button id="btn-test-groq" class="btn btn-secondary" onclick="testGroqKey()" style="flex:1;border-color:rgba(78,205,196,0.4);color:var(--jade)">
+            🔍 Test
+          </button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center">
+          ⚡ Miễn phí 14,400 requests/ngày · Tốc độ 500 token/giây
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">🔀 Ưu tiên provider</div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">
+          App sẽ dùng provider này trước, tự động chuyển sang provider kia nếu lỗi.
+        </div>
+        <div style="display:flex;gap:8px">
+          <button id="btn-prov-groq" class="btn btn-secondary" onclick="setProvider('groq')"
+            style="flex:1;border-color:rgba(78,205,196,0.5);color:var(--jade)">
+            ⚡ Groq (nhanh)
+          </button>
+          <button id="btn-prov-gemini" class="btn btn-secondary" onclick="setProvider('gemini')"
+            style="flex:1">
+            🤖 Gemini
+          </button>
+        </div>
+        <div id="provider-status" style="text-align:center;font-size:11px;color:var(--text-secondary);margin-top:10px">
+          Đang dùng: <span id="current-provider-label" style="color:var(--jade)">Groq</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">ℹ️ Thông tin</div>
+      <div class="card-body" style="font-size:12px;color:var(--text-secondary);line-height:1.8">
+        <div>Provider: <span id="info-provider" style="color:var(--jade)">Groq (Llama 3.3 70B)</span></div>
+        <div>Fallback: <span style="color:var(--gold)">Gemini 2.0 Flash</span></div>
+        <div>Phiên bản: <span style="color:var(--gold)">2.0.0</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="bottom-safe"></div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Đang tải trang...</div>
+  <div class="loading-sub" id="loading-sub">Vui lòng chờ</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- HISTORY DETAIL MODAL -->
+<div class="modal-backdrop" id="history-modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Chi tiết chương</div>
+    <div class="textarea-wrap" style="margin-bottom:12px">
+      <textarea id="modal-content" class="textarea-field output" style="min-height:300px;font-size:13px" readonly></textarea>
+      <button class="copy-btn" onclick="copyModalContent()">📋</button>
+    </div>
+    <div class="btn-group">
+      <button class="btn btn-secondary" onclick="closeHistoryModal()">✕ Đóng</button>
+      <button class="btn btn-danger btn-sm" id="btn-delete-item" onclick="deleteHistoryItem()">🗑️ Xóa</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =================== STATE ===================
+const STATE = {
+  apiKey: '',
+  groqKey: '',
+  workingGroqModel: 'llama-3.3-70b-versatile',
+  workingModel: 'gemini-2.0-flash',
+  activeProvider: 'groq', // 'groq' | 'gemini'
+  history: [],
+  settings: { autosave: false, qa: true, chunkSize: 1200 },
+  glossary: {},
+  currentModalId: null
+};
+
+// =================== STORAGE (localStorage + sessionStorage fallback) ===================
+const STORE = {
+  _get(k) {
+    try { return localStorage.getItem(k); } catch(e) {}
+    try { return sessionStorage.getItem(k); } catch(e) {}
+    return null;
+  },
+  _set(k, v) {
+    try { localStorage.setItem(k, v); return; } catch(e) {}
+    try { sessionStorage.setItem(k, v); return; } catch(e) {}
+    console.warn('Storage unavailable, data in memory only');
+  }
+};
+
+function saveGroqKey() {
+  const key = document.getElementById('groq-key-input').value.trim();
+  if (!key) { toast('⚠️ Nhập Groq API key trước'); return; }
+  if (key.length < 20) { toast('⚠️ Key quá ngắn'); return; }
+  STATE.groqKey = key;
+  STATE.activeProvider = 'groq';
+  save();
+  updateGroqStatus(true);
+  hideApiKeyBanner();
+  toast('✅ Đã lưu Groq Key!');
+}
+
+async function testGroqKey() {
+  const key = document.getElementById('groq-key-input').value.trim();
+  if (!key) { toast('⚠️ Nhập Groq key trước'); return; }
+  const btn = document.getElementById('btn-test-groq');
+  btn.textContent = '⏳ Test...';
+  btn.disabled = true;
+
+  // Thử từng model, model mới nhất có thể chưa available
+  const testModels = ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'mixtral-8x7b-32768'];
+  let lastData = null;
+  let lastStatus = 0;
+  let successModel = null;
+
+  for (const model of testModels) {
+    btn.textContent = `⏳ Thử ${model.split('-').slice(0,2).join('-')}...`;
+    try {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+        body: JSON.stringify({
+          model: model,
+          messages: [{ role: 'user', content: 'Hi' }],
+          max_tokens: 5
+        })
+      });
+      lastStatus = res.status;
+      lastData = await res.json();
+
+      if (lastData?.choices?.[0]) {
+        successModel = model;
+        break;
+      }
+      // Nếu 401 thì không cần thử tiếp
+      if (res.status === 401) break;
+    } catch(e) {
+      lastData = { error: { message: e.message, type: 'network_error' } };
+      break;
+    }
+  }
+
+  btn.textContent = '🔍 Test';
+  btn.disabled = false;
+
+  if (successModel) {
+    STATE.groqKey = key;
+    STATE.workingGroqModel = successModel;
+    STATE.activeProvider = 'groq';
+    save();
+    updateGroqStatus(true);
+    hideApiKeyBanner();
+    updateProviderUI();
+    showGroqDebug(`✅ Thành công!
+Model: ${successModel}
+HTTP: ${lastStatus}`, 'success');
+    toast(`✅ Groq OK! Dùng ${successModel}`);
+  } else {
+    const code = lastData?.error?.code || lastStatus;
+    const msg = lastData?.error?.message || 'Lỗi không xác định';
+    const type = lastData?.error?.type || '';
+    const debugMsg = `❌ Lỗi: ${msg}
+
+Code: ${code}
+Type: ${type}
+HTTP: ${lastStatus}
+
+Nếu lỗi "Failed to fetch":
+→ Groq cho phép CORS, thử mở DevTools (F12)
+  → Console tab để xem lỗi chi tiết hơn
+
+Raw:
+${JSON.stringify(lastData, null, 2)}`;
+    showGroqDebug(debugMsg, 'error');
+    toast('❌ ' + msg.substring(0, 60));
+  }
+}
+
+function showGroqDebug(msg, type) {
+  let box = document.getElementById('groq-debug-box');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'groq-debug-box';
+    box.style.cssText = 'margin-top:12px;padding:12px;border-radius:8px;font-size:11px;font-family:monospace;white-space:pre-wrap;word-break:break-all;line-height:1.6;position:relative';
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = 'position:absolute;top:6px;right:8px;background:transparent;border:none;cursor:pointer;font-size:14px;color:inherit';
+    closeBtn.onclick = () => box.remove();
+    box.appendChild(closeBtn);
+    const container = document.getElementById('groq-key-input').closest('.card-body');
+    container.appendChild(box);
+  }
+  box.style.background = type === 'success' ? 'rgba(46,204,113,0.1)' : 'rgba(192,57,43,0.1)';
+  box.style.border = type === 'success' ? '1px solid rgba(46,204,113,0.3)' : '1px solid rgba(192,57,43,0.4)';
+  box.style.color = type === 'success' ? '#2ecc71' : '#e74c3c';
+  const closeBtn = box.querySelector('button');
+  box.textContent = msg;
+  box.appendChild(closeBtn);
+}
+
+function toggleGroqKey() {
+  const input = document.getElementById('groq-key-input');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+
+function updateGroqStatus(ok) {
+  const el = document.getElementById('groq-key-status');
+  if (!el) return;
+  el.innerHTML = ok
+    ? '<span class="badge badge-success">✓ Đã cấu hình</span>'
+    : '<span class="badge badge-error">✗ Chưa có key</span>';
+}
+
+function setProvider(name) {
+  STATE.activeProvider = name;
+  save();
+  updateProviderUI();
+  toast(`✅ Đã chuyển sang ${name === 'groq' ? 'Groq ⚡' : 'Gemini 🤖'}`);
+}
+
+function updateProviderUI() {
+  const isGroq = STATE.activeProvider !== 'gemini';
+  const label = document.getElementById('current-provider-label');
+  const info = document.getElementById('info-provider');
+  const btnGroq = document.getElementById('btn-prov-groq');
+  const btnGemini = document.getElementById('btn-prov-gemini');
+  if (label) { label.textContent = isGroq ? 'Groq ⚡' : 'Gemini 🤖'; label.style.color = isGroq ? 'var(--jade)' : 'var(--gold)'; }
+  if (info) info.textContent = isGroq ? 'Groq (Llama 3.3 70B)' : 'Gemini 2.0 Flash';
+  if (btnGroq) btnGroq.style.background = isGroq ? 'rgba(78,205,196,0.15)' : '';
+  if (btnGemini) btnGemini.style.background = !isGroq ? 'rgba(201,168,76,0.15)' : '';
+}
+
+function showQuotaError() {
+  const msg = `⚠️ HẾT QUOTA API KEY
+
+API key của bạn đã dùng hết giới hạn miễn phí hôm nay.
+
+Cách khắc phục nhanh:
+━━━━━━━━━━━━━━━━━━━━
+① Tạo API key mới (miễn phí):
+   → Mở aistudio.google.com
+   → Get API Key → Create API Key
+   → Dùng Gmail khác nếu cần
+
+② Bật billing (trả theo dùng):
+   → aistudio.google.com → Billing
+   → Rất rẻ: ~$0.10 / 1 triệu token
+   → Dịch 1 chương ≈ 0.001$
+
+③ Chờ reset: Quota free reset lúc 00:00 UTC
+   (tức 7:00 sáng giờ Việt Nam)`;
+  alert(msg);
+  goTabByName('settings');
+}
+
+// =================== INIT ===================
+function init() {
+  loadFromStorage();
+  renderHistory();
+  updateSettingsUI();
+  updateApiKeyStatus(!!STATE.apiKey);
+  updateGroqStatus(!!STATE.groqKey);
+  updateProviderUI();
+  if (STATE.groqKey) {
+    document.getElementById('groq-key-input').value = STATE.groqKey;
+  }
+  if (!STATE.apiKey && !STATE.groqKey) showApiKeyBanner();
+}
+
+function loadFromStorage() {
+  try {
+    STATE.apiKey = STORE._get('gemini_key') || '';
+    STATE.groqKey = STORE._get('groq_key') || '';
+    STATE.workingModel = STORE._get('gemini_model') || 'gemini-2.0-flash';
+    STATE.activeProvider = STORE._get('active_provider') || (STATE.groqKey ? 'groq' : 'gemini');
+    STATE.history = JSON.parse(STORE._get('translation_history') || '[]');
+    const saved = JSON.parse(STORE._get('settings') || '{}');
+    Object.assign(STATE.settings, saved);
+    const g = STORE._get('glossary') || '';
+    parseGlossary(g);
+    if (STATE.apiKey) {
+      document.getElementById('api-key-input').value = STATE.apiKey;
+      updateApiKeyStatus(true);
+    }
+    if (g) document.getElementById('glossary-input').value = g;
+    const cs = document.getElementById('chunk-size');
+    if (cs) cs.value = STATE.settings.chunkSize || 1200;
+  } catch(e) { console.warn('loadFromStorage error:', e); }
+}
+
+function save() {
+  try {
+    STORE._set('gemini_key', STATE.apiKey);
+    STORE._set('translation_history', JSON.stringify(STATE.history));
+    STORE._set('settings', JSON.stringify(STATE.settings));
+  } catch(e) {}
+}
+
+// =================== TABS ===================
+// Tab switching - dùng element trực tiếp, không dùng global event
+function goTab(btnEl) {
+  const name = btnEl.getAttribute('data-tab');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'history') renderHistory();
+}
+
+// Gọi programmatically (không có button element)
+function goTabByName(name) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
+  if (btn) goTab(btn);
+}
+
+// =================== FETCH URL ===================
+
+// CORS proxy list - thử lần lượt
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  url => `https://thingproxy.freeboard.io/fetch/${url}`,
+];
+
+// Selector ưu tiên theo domain
+const SITE_SELECTORS = {
+  'truyenmoikk.com':        ['#inner-book-content','#chapter-c','#chapter-content','.chapter-content','#content-chapter'],
+  'truyenfull.vn':          ['#chapter-big-container','.chapter-content','#chapter-content'],
+  'metruyencv.com':         ['#content-story','.content-story','#box-chap'],
+  'truyen.tangthuvien.vn':  ['#bookContentBody','.bookContentBody'],
+  'dtruyen.net':            ['#chapter-content','.chapter-content'],
+  'wikidich.com':           ['#chapter-content','.box-chap'],
+  'default': [
+    '#inner-book-content','#chapter-content','#book-content','#noi-dung',
+    '#content','#box-chap','.chapter-content','.content-chapter',
+    '.box-chap','.entry-content','[id*="chapter-c"]','[class*="chapter-c"]',
+    'article','[id*="content"]'
+  ]
+};
+
+async function fetchFromUrl() {
+  const url = document.getElementById('url-input').value.trim();
+  if (!url) { toast('⚠️ Nhập URL trước'); return; }
+  if (!url.startsWith('http')) { toast('⚠️ URL phải bắt đầu bằng https://'); return; }
+
+  const key = STATE.apiKey || document.getElementById('api-key-input').value.trim();
+
+  showLoading('Đang tải trang truyện...', 'Kết nối...');
+
+  let html = null;
+  let proxyUsed = '';
+
+  // Bước 1: Thử các CORS proxy thông thường
+  for (let i = 0; i < CORS_PROXIES.length; i++) {
+    const proxyUrl = CORS_PROXIES[i](url);
+    document.getElementById('loading-sub').textContent = `Proxy ${i+1}/${CORS_PROXIES.length}...`;
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 10000);
+      const res = await fetch(proxyUrl, { signal: ctrl.signal });
+      clearTimeout(t);
+      if (res.ok) {
+        let raw = await res.text();
+        if (raw.trim().startsWith('{') && raw.includes('"contents"')) {
+          try { raw = JSON.parse(raw).contents; } catch(e) {}
+        }
+        if (raw && raw.length > 800) { html = raw; proxyUsed = `proxy ${i+1}`; break; }
+      }
+    } catch(e) { /* thử tiếp */ }
+  }
+
+  // Bước 2: Nếu proxy thất bại & có API key → dùng Gemini fetch URL
+  if (!html && key) {
+    document.getElementById('loading-sub').textContent = 'Dùng Gemini scraper...';
+    html = await fetchViaGemini(key, url);
+    if (html) proxyUsed = 'Gemini';
+  }
+
+  hideLoading();
+
+  if (!html || html.length < 300) {
+    showFetchError(url);
+    return;
+  }
+
+  // Parse và extract nội dung
+  const text = extractChapterText(html, url);
+
+  if (text.length > 200) {
+    document.getElementById('raw-input').value = text;
+
+    // Tự điền tên chương
+    if (!document.getElementById('chapter-name').value) {
+      try {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const t = doc.querySelector('h1,h2,.chapter-title,[class*="title"],title');
+        if (t) document.getElementById('chapter-name').value =
+          t.textContent.trim().replace(/\s+/g,' ').substring(0,80);
+      } catch(e) {}
+    }
+
+    toast(`✅ Tải xong: ${text.length.toLocaleString()} ký tự (${proxyUsed})`);
+  } else {
+    showFetchError(url);
+  }
+}
+
+// Dùng Gemini để fetch URL (bypass 403/cloudflare)
+async function fetchViaGemini(apiKey, url) {
+  try {
+    const prompt = `Truy cập URL sau và trả về TOÀN BỘ nội dung văn bản của chương truyện (chỉ nội dung truyện, không có HTML, không có menu, không có quảng cáo):
+
+URL: ${url}
+
+Chỉ trả về nội dung văn bản thuần túy của chương truyện.`;
+
+    const model = STATE.workingModel || 'gemini-2.0-flash';
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const body = {
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      tools: [{ urlContext: {} }],
+      generationConfig: { temperature: 0.1, maxOutputTokens: 8192 }
+    };
+
+    const res = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('');
+    return text && text.length > 200 ? text : null;
+  } catch(e) { return null; }
+}
+
+function extractChapterText(html, url) {
+  // Nếu html đã là plaintext (từ Gemini), trả về thẳng
+  if (!html.includes('<html') && !html.includes('<div') && html.length > 200) {
+    return cleanText(html);
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  // Xóa toàn bộ rác
+  doc.querySelectorAll('script,style,nav,footer,header,noscript,iframe,form,button,input,[class*="ads"],[id*="ads"],[class*="banner"],[class*="comment"],[class*="related"],[class*="share"],[class*="sidebar"],[id*="sidebar"]')
+    .forEach(n => n.remove());
+
+  const domain = getDomain(url);
+  const selectors = SITE_SELECTORS[domain] || SITE_SELECTORS['default'];
+
+  let text = '';
+
+  // Thử selector theo domain
+  for (const sel of selectors) {
+    try {
+      const el = doc.querySelector(sel);
+      if (el) {
+        const t = cleanText(getTextWithBreaks(el));
+        if (t.length > 300) { text = t; break; }
+      }
+    } catch(e) {}
+  }
+
+  // Fallback: tìm container có nhiều <p> nhất
+  if (!text) {
+    let bestEl = null, bestCount = 0;
+    doc.querySelectorAll('div,article,section').forEach(el => {
+      const ps = el.querySelectorAll('p');
+      const totalLen = [...ps].reduce((s, p) => s + p.textContent.length, 0);
+      if (ps.length >= 3 && totalLen > bestCount && totalLen < 150000) {
+        bestCount = totalLen;
+        bestEl = el;
+      }
+    });
+    if (bestEl) text = cleanText(getTextWithBreaks(bestEl));
+  }
+
+  // Fallback cuối: tất cả <p> đủ dài
+  if (!text || text.length < 200) {
+    const ps = [...doc.querySelectorAll('p')]
+      .map(p => p.textContent.trim())
+      .filter(t => t.length > 20);
+    if (ps.length >= 3) text = cleanText(ps.join('\n\n'));
+  }
+
+  return text;
+}
+
+function getTextWithBreaks(el) {
+  let result = '';
+  el.childNodes.forEach(node => {
+    if (node.nodeType === 3) {
+      result += node.textContent;
+    } else if (node.nodeType === 1) {
+      const tag = node.tagName.toLowerCase();
+      if (tag === 'br') result += '\n';
+      else if (['p','div','h1','h2','h3','li'].includes(tag))
+        result += '\n' + getTextWithBreaks(node) + '\n';
+      else result += getTextWithBreaks(node);
+    }
+  });
+  return result;
+}
+
+function getDomain(url) {
+  try { return new URL(url).hostname.replace('www.',''); } catch(e) { return ''; }
+}
+
+function showFetchError(url) {
+  document.getElementById('url-input').style.borderColor = 'var(--crimson)';
+  setTimeout(() => document.getElementById('url-input').style.borderColor = '', 3000);
+  toast('❌ Không tải được — thử copy thủ công từ Chrome');
+}
+
+function cleanText(text) {
+  return text
+    .replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/^\s+|\s+$/gm, '')
+    .trim();
+}
+
+
+
+// =================== TRANSLATION ===================
+async function startTranslation() {
+  const key = STATE.apiKey || document.getElementById('api-key-input').value.trim();
+  if (!key) { toast('⚠️ Cần nhập API Key Gemini trong Cài đặt'); goTabByName('settings'); return; }
+  STATE.apiKey = key;
+
+  const rawText = document.getElementById('raw-input').value.trim();
+  if (!rawText || rawText.length < 50) { toast('⚠️ Nhập văn bản cần dịch'); return; }
+
+  // Apply glossary pre-processing
+  const processedText = applyGlossaryPreprocess(rawText);
+
+  const chunkSize = parseInt(document.getElementById('chunk-size').value);
+  const chunks = splitIntoChunks(processedText, chunkSize);
+
+  document.getElementById('btn-translate').disabled = true;
+  document.getElementById('progress-section').style.display = 'block';
+  document.getElementById('result-section').style.display = 'none';
+
+  const results = [];
+  let prevContext = '';
+  let totalQA = 0;
+
+  for (let i = 0; i < chunks.length; i++) {
+    updateProgress(i / chunks.length, `Đang dịch đoạn ${i+1}/${chunks.length}...`);
+
+    try {
+      const result = await translateChunk(chunks[i], prevContext, i, chunks.length);
+      results.push(result.text);
+      totalQA += result.qaScore;
+
+      // Context cho chunk tiếp theo: 2 câu cuối
+      const sentences = result.text.split(/(?<=[.!?।…])\s+/);
+      prevContext = sentences.slice(-2).join(' ');
+
+    } catch(e) {
+      console.error('Chunk error:', e);
+      if (e.message && e.message.startsWith('QUOTA_EXHAUSTED')) {
+        // Dừng hẳn, không dịch tiếp
+        document.getElementById('btn-translate').disabled = false;
+        document.getElementById('progress-section').style.display = 'none';
+        showQuotaError();
+        return;
+      }
+      results.push(chunks[i]); // Fallback: giữ nguyên bản gốc
+      toast('⚠️ Đoạn ' + (i+1) + ' lỗi — giữ bản gốc');
+    }
+
+    // Delay tránh rate limit
+    if (i < chunks.length - 1) await sleep(600);
+  }
+
+  updateProgress(1, 'Hoàn thành!');
+
+  const finalText = results.join('\n\n');
+  const avgQA = Math.round(totalQA / chunks.length);
+
+  document.getElementById('result-output').value = finalText;
+  document.getElementById('result-section').style.display = 'block';
+
+  if (STATE.settings.qa) {
+    document.getElementById('qa-info').textContent =
+      `📊 QA: ${avgQA}% trung thực • ${chunks.length} đoạn • ${finalText.length.toLocaleString()} ký tự`;
+  }
+
+  document.getElementById('result-badge').className = 'badge ' +
+    (avgQA >= 85 ? 'badge-success' : avgQA >= 70 ? 'badge-warning' : 'badge-error');
+  document.getElementById('result-badge').textContent =
+    avgQA >= 85 ? '✓ Tốt' : avgQA >= 70 ? '⚠ Kiểm tra' : '✗ Cần sửa';
+
+  document.getElementById('btn-translate').disabled = false;
+
+  if (STATE.settings.autosave) saveToHistory(true);
+  else toast('✅ Dịch xong! Nhấn Lưu để lưu vào lịch sử.');
+}
+
+async function translateChunk(text, context, idx, total) {
+  const systemPrompt = `Bạn là biên tập viên hiệu đính bản dịch convert truyện Tiên Hiệp Trung Quốc sang tiếng Việt.
+
+NHIỆM VỤ: Chỉnh bản dịch thô thành tiếng Việt tự nhiên, dễ đọc hơn.
+
+QUY TẮC BẮT BUỘC - TUYỆT ĐỐI KHÔNG VI PHẠM:
+1. KHÔNG thêm bất kỳ nội dung, cảm xúc, chi tiết nào không có trong bản gốc.
+2. KHÔNG bỏ bớt câu hay đoạn nào - phải giữ nguyên 100% nội dung.
+3. KHÔNG thay đổi diễn biến, hành động, lời thoại.
+4. GIỮ NGUYÊN hoàn toàn: tên nhân vật, địa danh, cảnh giới tu luyện, tên kỹ năng, pháp bảo, tông môn.
+5. Chỉ sửa: ngữ pháp lủng củng, từ Hán cổ lạc lõng khó hiểu, câu đảo ngữ theo cấu trúc tiếng Trung.
+6. Chuẩn hóa đại từ nhất quán: ta/ngươi/nàng/y/hắn/lão/tiền bối/đạo hữu.
+7. Số đoạn văn và số câu đầu ra PHẢI bằng đầu vào - không gộp, không tách thêm.
+
+ĐẦU RA: Chỉ văn bản đã hiệu đính, không giải thích, không comment, không dấu markdown.`;
+
+  const userPrompt = `${context ? `[Ngữ cảnh: ${context}]\n\n` : ''}Đoạn ${idx+1}/${total}:\n\n${text}`;
+
+  const aiRes = await callAI(systemPrompt, userPrompt);
+  const qaScore = computeQAScore(text, aiRes);
+  return { text: aiRes, qaScore };
+}
+
+// =================== AI PROVIDER ENGINE ===================
+
+// Groq models theo thứ tự ưu tiên (free, nhanh)
+const GROQ_MODELS = [
+  'llama-3.3-70b-versatile',
+  'llama-3.1-70b-versatile',
+  'llama3-70b-8192',
+  'mixtral-8x7b-32768',
+];
+
+// Use tested working model first if available
+function getGroqModels() {
+  const working = STATE.workingGroqModel;
+  if (working && GROQ_MODELS[0] !== working) {
+    return [working, ...GROQ_MODELS.filter(m => m !== working)];
+  }
+  return GROQ_MODELS;
+}
+
+// Unified AI caller — tự fallback Groq → Gemini
+async function callAI(systemPrompt, userPrompt) {
+  const provider = STATE.activeProvider;
+
+  // Thử Groq trước nếu có key
+  if (STATE.groqKey && provider !== 'gemini') {
+    try {
+      const result = await callGroqAPI(STATE.groqKey, systemPrompt, userPrompt);
+      STATE.activeProvider = 'groq';
+      return result;
+    } catch(e) {
+      if (e.message.startsWith('QUOTA_EXHAUSTED') || e.message.startsWith('RATE_LIMIT')) {
+        // Groq hết quota → thử Gemini
+        if (STATE.apiKey) {
+          updateProgressLabel('⚡ Groq hết quota, chuyển sang Gemini...');
+          try {
+            const result = await callGeminiAPI(STATE.apiKey, systemPrompt, userPrompt);
+            STATE.activeProvider = 'gemini';
+            return result;
+          } catch(e2) {
+            if (e2.message.startsWith('QUOTA_EXHAUSTED')) throw e2;
+            throw new Error(e2.message);
+          }
+        }
+        throw e;
+      }
+      throw e;
+    }
+  }
+
+  // Chỉ dùng Gemini
+  if (STATE.apiKey) {
+    return callGeminiAPI(STATE.apiKey, systemPrompt, userPrompt);
+  }
+
+  throw new Error('Chưa cấu hình API key. Vào Cài đặt để thêm Groq hoặc Gemini key.');
+}
+
+async function callGroqAPI(apiKey, systemPrompt, userPrompt, modelIdx = 0) {
+  if (modelIdx >= GROQ_MODELS.length) {
+    throw new Error('QUOTA_EXHAUSTED: Tất cả Groq models đều hết quota');
+  }
+
+  const models = getGroqModels();
+  if (modelIdx >= models.length) {
+    throw new Error('QUOTA_EXHAUSTED: Tất cả Groq models đều hết quota');
+  }
+  const model = models[modelIdx];
+  const url = 'https://api.groq.com/openai/v1/chat/completions';
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.2,
+      max_tokens: 4096,
+    })
+  });
+
+  const data = await res.json();
+
+  if (res.status === 429) {
+    const errMsg = data?.error?.message || '';
+    // Thử model tiếp theo trong list
+    updateProgressLabel(`⚡ ${model} rate limit, thử model khác...`);
+    await sleep(2000);
+    return callGroqAPI(apiKey, systemPrompt, userPrompt, modelIdx + 1);
+  }
+
+  if (res.status === 401) throw new Error('Groq API key không hợp lệ');
+
+  if (!res.ok) {
+    const msg = data?.error?.message || `HTTP ${res.status}`;
+    throw new Error('Groq: ' + msg);
+  }
+
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error('Groq không trả về nội dung');
+  return text.trim();
+}
+
+async function callGeminiAPI(apiKey, systemPrompt, userPrompt, attempt = 0) {
+  const model = STATE.workingModel || 'gemini-2.0-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const body = {
+    system_instruction: { parts: [{ text: systemPrompt }] },
+    contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+    generationConfig: { temperature: 0.2, topP: 0.85, maxOutputTokens: 4096 }
+  };
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+
+  const data = await res.json();
+
+  if (res.status === 429) {
+    const err = data?.error;
+    if (err?.message?.includes('limit: 0')) {
+      throw new Error('QUOTA_EXHAUSTED: Gemini hết quota ngày');
+    }
+    if (attempt < 2) {
+      const retryDetail = err?.details?.find(d => d.retryDelay);
+      const delaySec = Math.min(parseInt(retryDetail?.retryDelay) || 20, 60);
+      await countdownWait(delaySec, `Gemini rate limit — chờ`);
+      return callGeminiAPI(apiKey, systemPrompt, userPrompt, attempt + 1);
+    }
+    throw new Error('RATE_LIMIT: Gemini quá tải, thử lại sau');
+  }
+
+  if (!res.ok) {
+    throw new Error('Gemini: ' + (data?.error?.message || `HTTP ${res.status}`));
+  }
+
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Gemini không trả về nội dung');
+  return text.trim();
+}
+
+function updateProgressLabel(msg) {
+  const el = document.getElementById('progress-text');
+  if (el) el.textContent = msg;
+}
+
+async function countdownWait(seconds, label) {
+  return new Promise(resolve => {
+    let remaining = seconds;
+    function tick() {
+      updateProgressLabel(`${label} (còn ${remaining}s)...`);
+      if (remaining <= 0) { resolve(); return; }
+      remaining--;
+      setTimeout(tick, 1000);
+    }
+    tick();
+  });
+}
+
+// =================== QA SCORING ===================
+function computeQAScore(original, translated) {
+  let score = 100;
+
+  // 1. Length ratio check
+  const ratio = translated.length / Math.max(original.length, 1);
+  if (ratio < 0.6) score -= 30;
+  else if (ratio < 0.75) score -= 15;
+  else if (ratio > 2.0) score -= 20;
+  else if (ratio > 1.7) score -= 10;
+
+  // 2. Paragraph count check
+  const origParas = original.split(/\n+/).filter(p => p.trim()).length;
+  const transParas = translated.split(/\n+/).filter(p => p.trim()).length;
+  const paraDiff = Math.abs(origParas - transParas);
+  if (paraDiff > 2) score -= paraDiff * 5;
+
+  // 3. Realm keywords check
+  const realmKeywords = ['Luyện Khí', 'Trúc Cơ', 'Kim Đan', 'Nguyên Anh', 'Hóa Thần', 'Luyện Hư', 'Hợp Thể', 'Đại Thừa'];
+  for (const kw of realmKeywords) {
+    if (original.includes(kw) && !translated.includes(kw)) score -= 5;
+  }
+
+  return Math.max(0, Math.min(100, score));
+}
+
+// =================== CHUNKING ===================
+function splitIntoChunks(text, targetSize) {
+  const paragraphs = text.split(/\n{2,}/).filter(p => p.trim());
+  const chunks = [];
+  let current = [];
+  let currentLen = 0;
+
+  for (const para of paragraphs) {
+    if (currentLen + para.length > targetSize && current.length > 0) {
+      chunks.push(current.join('\n\n'));
+      current = [];
+      currentLen = 0;
+    }
+    current.push(para);
+    currentLen += para.length;
+  }
+  if (current.length) chunks.push(current.join('\n\n'));
+  return chunks.length ? chunks : [text];
+}
+
+// =================== GLOSSARY ===================
+function parseGlossary(text) {
+  STATE.glossary = {};
+  text.split('\n').forEach(line => {
+    const parts = line.split('=');
+    if (parts.length === 2) {
+      const k = parts[0].trim(), v = parts[1].trim();
+      if (k && v) STATE.glossary[k] = v;
+    }
+  });
+}
+
+function applyGlossaryPreprocess(text) {
+  let result = text;
+  for (const [wrong, correct] of Object.entries(STATE.glossary)) {
+    result = result.replaceAll(wrong, correct);
+  }
+  return result;
+}
+
+function saveGlossary() {
+  const g = document.getElementById('glossary-input').value;
+  localStorage.setItem('glossary', g);
+  parseGlossary(g);
+  toast('✅ Đã lưu thuật ngữ');
+}
+
+// =================== HISTORY ===================
+function saveToHistory(auto = false) {
+  const name = document.getElementById('chapter-name').value.trim() || 'Chương không tên';
+  const original = document.getElementById('raw-input').value.trim();
+  const translated = document.getElementById('result-output').value.trim();
+  if (!translated) { toast('⚠️ Chưa có kết quả để lưu'); return; }
+
+  const item = {
+    id: Date.now().toString(),
+    name,
+    original,
+    translated,
+    date: new Date().toLocaleDateString('vi-VN'),
+    length: translated.length
+  };
+
+  STATE.history.unshift(item);
+  if (STATE.history.length > 100) STATE.history = STATE.history.slice(0, 100);
+  save();
+  if (!auto) toast('💾 Đã lưu: ' + name);
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const empty = document.getElementById('history-empty');
+  const btnClear = document.getElementById('btn-clear-history');
+
+  if (!STATE.history.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    btnClear.style.display = 'none';
+    return;
+  }
+
+  empty.style.display = 'none';
+  btnClear.style.display = 'inline-flex';
+
+  list.innerHTML = STATE.history.map(item => `
+    <div class="history-item" onclick="openHistoryItem('${item.id}')">
+      <div class="history-item-title">📖 ${escHtml(item.name)}</div>
+      <div class="history-item-meta">
+        <span>📅 ${item.date}</span>
+        <span>📝 ${item.length.toLocaleString()} ký tự</span>
+      </div>
+      <div class="history-item-preview">${escHtml(item.translated.substring(0, 120))}...</div>
+    </div>
+  `).join('');
+}
+
+function openHistoryItem(id) {
+  const item = STATE.history.find(h => h.id === id);
+  if (!item) return;
+  STATE.currentModalId = id;
+  document.getElementById('modal-title').textContent = '📖 ' + item.name;
+  document.getElementById('modal-content').value = item.translated;
+  document.getElementById('history-modal').classList.add('show');
+}
+
+function closeHistoryModal() {
+  document.getElementById('history-modal').classList.remove('show');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('history-modal')) closeHistoryModal();
+}
+
+function deleteHistoryItem() {
+  if (!STATE.currentModalId) return;
+  STATE.history = STATE.history.filter(h => h.id !== STATE.currentModalId);
+  save();
+  renderHistory();
+  closeHistoryModal();
+  toast('🗑️ Đã xóa chương');
+}
+
+function clearHistory() {
+  if (!confirm('Xóa toàn bộ lịch sử dịch?')) return;
+  STATE.history = [];
+  save();
+  renderHistory();
+  toast('🗑️ Đã xóa lịch sử');
+}
+
+function copyModalContent() {
+  const text = document.getElementById('modal-content').value;
+  navigator.clipboard.writeText(text).then(() => toast('📋 Đã sao chép!'));
+}
+
+// =================== SETTINGS ===================
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) { toast('⚠️ Nhập API key trước'); return; }
+  if (key.length < 20) {
+    toast('⚠️ API key quá ngắn, kiểm tra lại');
+    return;
+  }
+  STATE.apiKey = key;
+  save();
+  updateApiKeyStatus(true);
+  hideApiKeyBanner();
+  toast('✅ Đã lưu API Key thành công!');
+}
+
+function updateApiKeyStatus(saved) {
+  const statusEl = document.getElementById('api-key-status');
+  if (!statusEl) return;
+  if (saved && STATE.apiKey) {
+    statusEl.innerHTML = '<span class="badge badge-success">✓ Đã cấu hình</span>';
+  } else {
+    statusEl.innerHTML = '<span class="badge badge-error">✗ Chưa có API Key</span>';
+  }
+}
+
+function showApiKeyBanner() {
+  const banner = document.getElementById('api-key-banner');
+  if (banner) banner.style.display = 'block';
+}
+
+function hideApiKeyBanner() {
+  const banner = document.getElementById('api-key-banner');
+  if (banner) banner.style.display = 'none';
+}
+
+function toggleShowKey() {
+  const input = document.getElementById('api-key-input');
+  const btn = document.getElementById('btn-toggle-key');
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+function testApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) { toast('⚠️ Nhập API key trước'); return; }
+  const btn = document.getElementById('btn-test-key');
+  btn.textContent = '⏳ Đang kiểm tra...';
+  btn.disabled = true;
+
+  // Thử lần lượt các model mới nhất
+  const models = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash-latest'];
+  let tried = 0;
+
+  function tryModel(modelName) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
+    btn.textContent = `⏳ Thử ${modelName}...`;
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: 'Hi' }] }],
+        generationConfig: { maxOutputTokens: 10 }
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      btn.textContent = '🔍 Kiểm tra';
+      btn.disabled = false;
+
+      if (data?.candidates?.[0]) {
+        // Thành công — lưu model name hoạt động
+        STATE.apiKey = key;
+        STATE.workingModel = modelName;
+        save();
+        updateApiKeyStatus(true);
+        hideApiKeyBanner();
+        showDebugBox(`✅ Thành công với model: ${modelName}`, 'success');
+        toast(`✅ API Key OK! Model: ${modelName}`);
+      } else {
+        const code = data?.error?.code || '';
+        const msg = data?.error?.message || 'Lỗi không xác định';
+        const status = data?.error?.status || '';
+
+        // Nếu lỗi do model không tồn tại, thử model tiếp theo
+        if ((status === 'NOT_FOUND' || code === 404) && tried < models.length - 1) {
+          tried++;
+          tryModel(models[tried]);
+          return;
+        }
+
+        // Hiện full error để debug
+        const debugMsg = `❌ Lỗi: ${msg}
+
+Code: ${code}
+Status: ${status}
+Model thử: ${modelName}
+
+Raw response:
+${JSON.stringify(data, null, 2)}`;
+        showDebugBox(debugMsg, 'error');
+        toast('❌ ' + msg.substring(0, 60));
+      }
+    })
+    .catch(e => {
+      btn.textContent = '🔍 Kiểm tra';
+      btn.disabled = false;
+      const debugMsg = `❌ Network error
+
+Thông báo: ${e.message}
+
+Có thể do:
+- Mở file:// bị Chrome chặn CORS
+→ Giải pháp: Upload file lên hosting hoặc dùng VS Code Live Server`;
+      showDebugBox(debugMsg, 'error');
+      toast('❌ ' + e.message.substring(0, 50));
+    });
+  }
+
+  tryModel(models[0]);
+}
+
+function showDebugBox(msg, type) {
+  let box = document.getElementById('debug-box');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'debug-box';
+    box.style.cssText = 'margin-top:12px;padding:12px;border-radius:8px;font-size:11px;font-family:monospace;white-space:pre-wrap;word-break:break-all;line-height:1.6;position:relative';
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = 'position:absolute;top:6px;right:8px;background:transparent;border:none;cursor:pointer;font-size:14px;color:inherit';
+    closeBtn.onclick = () => box.remove();
+    box.appendChild(closeBtn);
+    const apiCard = document.getElementById('api-key-input').closest('.card-body');
+    apiCard.appendChild(box);
+  }
+  if (type === 'success') {
+    box.style.background = 'rgba(46,204,113,0.1)';
+    box.style.border = '1px solid rgba(46,204,113,0.3)';
+    box.style.color = '#2ecc71';
+  } else {
+    box.style.background = 'rgba(192,57,43,0.1)';
+    box.style.border = '1px solid rgba(192,57,43,0.4)';
+    box.style.color = '#e74c3c';
+  }
+  // Giữ nút close, update text
+  const closeBtn = box.querySelector('button');
+  box.textContent = msg;
+  box.appendChild(closeBtn);
+}
+
+function toggleSetting(name) {
+  STATE.settings[name] = !STATE.settings[name];
+  const el = document.getElementById('toggle-' + name);
+  if (STATE.settings[name]) el.classList.add('on');
+  else el.classList.remove('on');
+  save();
+}
+
+function updateSettingsUI() {
+  ['autosave', 'qa'].forEach(name => {
+    const el = document.getElementById('toggle-' + name);
+    if (el) {
+      if (STATE.settings[name]) el.classList.add('on');
+      else el.classList.remove('on');
+    }
+  });
+}
+
+// =================== UTILS ===================
+function updateProgress(ratio, text) {
+  document.getElementById('progress-fill').style.width = (ratio * 100) + '%';
+  document.getElementById('progress-text').textContent = text;
+}
+
+function copyResult() {
+  const text = document.getElementById('result-output').value;
+  navigator.clipboard.writeText(text).then(() => toast('📋 Đã sao chép!'));
+}
+
+function resetForm() {
+  document.getElementById('raw-input').value = '';
+  document.getElementById('url-input').value = '';
+  document.getElementById('chapter-name').value = '';
+  document.getElementById('result-output').value = '';
+  document.getElementById('progress-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('btn-translate').disabled = false;
+  window.scrollTo(0, 0);
+}
+
+function showLoading(text, sub) {
+  document.getElementById('loading-overlay').classList.add('show');
+  document.querySelector('#loading-overlay .loading-text').textContent = text;
+  document.getElementById('loading-sub').textContent = sub || '';
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// =================== START ===================
+init();
+</script>
+</body>
+</html>
