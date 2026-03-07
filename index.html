@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Tiên Hiệp Dịch Thuật</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep:    #0f0a1e;
+  --bg-card:    #1a1330;
+  --bg-hover:   #221a3a;
+  --border:     rgba(201,168,76,0.18);
+  --gold:       #c9a84c;
+  --gold-light: #e8c96a;
+  --jade:       #4ecdc4;
+  --text:       #e8dcc8;
+  --text-secondary: #a89880;
+  --text-muted: #6b5d4f;
+  --red:        #e05555;
+  --green:      #4caf7d;
+  --shadow:     0 4px 24px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg-deep);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  background-image: radial-gradient(ellipse at 20% 20%, rgba(201,168,76,0.04) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 80%, rgba(78,205,196,0.03) 0%, transparent 60%);
+}
+
+/* ── Layout ── */
+.app-header {
+  background: linear-gradient(135deg, #1a1330, #0f0a1e);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 18px;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+.app-title span { color: var(--text-secondary); font-size: 11px; margin-left: 8px; }
+.version-badge {
+  font-size: 10px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* ── Tabs ── */
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-deep);
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.view { display: none; padding: 16px; max-width: 900px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-body { padding: 16px; }
+
+/* ── Form elements ── */
+.input-field {
+  width: 100%;
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input-field:focus { border-color: var(--gold); }
+.input-group { margin-bottom: 10px; }
+.input-group label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+textarea.input-field { resize: vertical; min-height: 140px; line-height: 1.6; }
+
+/* ── Buttons ── */
+.btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary {
+  background: linear-gradient(135deg, #3a2a0a, var(--gold));
+  color: #1a1000;
+  border-color: var(--gold);
+}
+.btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+.btn-secondary {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+.btn-secondary:hover:not(:disabled) { color: var(--text); border-color: var(--gold); }
+.btn-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Badges ── */
+.badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.badge-success { background: rgba(76,175,125,0.15); color: var(--green); border: 1px solid rgba(76,175,125,0.3); }
+.badge-error   { background: rgba(224,85,85,0.12);  color: var(--red);   border: 1px solid rgba(224,85,85,0.25); }
+.badge-warning { background: rgba(201,168,76,0.12); color: var(--gold);  border: 1px solid rgba(201,168,76,0.25); }
+
+/* ── Progress ── */
+#progress-section { display: none; margin-bottom: 12px; }
+.progress-bar-wrap {
+  background: var(--bg-deep);
+  border-radius: 6px;
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--jade));
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+.progress-label { font-size: 11px; color: var(--text-secondary); text-align: center; }
+
+/* ── Result ── */
+#result-section { display: none; }
+#result-display {
+  background: var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  line-height: 1.8;
+  font-size: 14px;
+  white-space: pre-wrap;
+  max-height: 500px;
+  overflow-y: auto;
+  color: var(--text);
+}
+
+/* ── Toast ── */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.toast-msg {
+  background: #2a2040;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  animation: toastIn 0.25s forwards, toastOut 0.3s 2.7s forwards;
+}
+@keyframes toastIn  { to   { opacity: 1; transform: translateY(-4px); } }
+@keyframes toastOut { from { opacity: 1; } to { opacity: 0; transform: translateY(4px); } }
+
+/* ── API Key Banner ── */
+#api-key-banner {
+  background: linear-gradient(135deg, rgba(201,168,76,0.1), rgba(78,205,196,0.06));
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: none;
+}
+#api-key-banner.show { display: block; }
+
+/* ── Quota Error Modal ── */
+#quota-error-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+#quota-error-modal.show { display: flex; }
+.modal-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+}
+.modal-box h3 { color: var(--gold); margin-bottom: 12px; }
+.modal-box p  { color: var(--text-secondary); font-size: 13px; line-height: 1.7; margin-bottom: 16px; }
+
+/* ── History ── */
+.history-item {
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.history-item:hover { border-color: var(--gold); }
+.history-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: var(--gold); }
+.history-meta  { font-size: 11px; color: var(--text-muted); }
+
+/* ── Glossary ── */
+.glossary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .app-title { font-size: 15px; }
+  .view { padding: 10px; }
+  .card-body { padding: 12px; }
+  .tab-btn { padding: 9px 12px; font-size: 12px; }
+  #result-display { font-size: 13px; max-height: 60vh; }
+  .btn { padding: 9px 12px; font-size: 12px; }
+}
+@media (min-width: 481px) and (max-width: 768px) {
+  .view { padding: 14px; }
+}
+@media (min-width: 769px) {
+  .view { padding: 20px; }
+  .app-title { font-size: 20px; }
+  #result-display { max-height: 600px; }
+  textarea.input-field { min-height: 180px; }
+}
+@media (min-width: 1024px) {
+  .view { padding: 24px; }
+}
+@media (min-width: 1280px) {
+  .view { max-width: 1000px; }
+}
+
+/* ── TTS bar ── */
+#tts-bar {
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: rgba(201,168,76,0.06);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 8px;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div id="quota-error-modal">
+  <div class="modal-box">
+    <h3 id="quota-modal-title">⚠️ Hết quota</h3>
+    <p id="quota-modal-body"></p>
+    <button class="btn btn-primary" onclick="document.getElementById('quota-error-modal').classList.remove('show')">Đóng</button>
+  </div>
+</div>
+
+<header class="app-header">
+  <div class="app-title">
+    ⚔️ Tiên Hiệp Dịch Thuật
+    <span>Phiên bản: <span id="version-label">3.5.1</span></span>
+  </div>
+  <span class="version-badge">v3.5.1</span>
+</header>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="translate" onclick="goTab(this)">📖 Dịch</button>
+  <button class="tab-btn" data-tab="history"   onclick="goTab(this)">📚 Lịch sử</button>
+  <button class="tab-btn" data-tab="glossary"  onclick="goTab(this)">📝 Thuật ngữ</button>
+  <button class="tab-btn" data-tab="settings"  onclick="goTab(this)">⚙️ Cài đặt</button>
+</nav>
+
+<!-- ══ TAB: DỊCH ══ -->
+<div id="view-translate" class="view active">
+  <div id="api-key-banner">
+    <div style="font-weight:600;color:var(--gold);margin-bottom:6px">⚙️ Chưa có API Key</div>
+    <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">
+      Cần ít nhất 1 key để dịch. Vào <b>Cài đặt</b> → nhập key miễn phí.
+    </div>
+    <button class="btn btn-primary" onclick="goTabByName('settings')" style="font-size:12px;padding:7px 14px">
+      ⚙️ Đến Cài đặt
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-header">📥 Văn bản gốc</div>
+    <div class="card-body">
+      <div class="input-group">
+        <label>Dán văn bản Trung-Việt cần dịch</label>
+        <textarea id="raw-input" class="input-field" placeholder="Dán nội dung chương tiên hiệp vào đây...&#10;Hỗ trợ cả tiếng Trung và tiếng Việt thô."></textarea>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <label style="font-size:11px;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap">Chunk size:</label>
+        <input type="number" id="chunk-size" value="1200" min="400" max="3000" step="100"
+          class="input-field" style="width:90px;text-align:center;padding:6px 8px">
+        <span style="font-size:11px;color:var(--text-muted)">ký tự/đoạn</span>
+      </div>
+      <button id="btn-translate" class="btn btn-primary" onclick="startTranslation()" style="width:100%;padding:13px;font-size:15px">
+        ⚔️ Bắt đầu dịch
+      </button>
+    </div>
+  </div>
+
+  <div id="progress-section">
+    <div class="card">
+      <div class="card-body">
+        <div class="progress-bar-wrap">
+          <div id="progress-fill" class="progress-bar-fill" style="width:0%"></div>
+        </div>
+        <div id="progress-label" class="progress-label">Đang chuẩn bị...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result-section">
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>📤 Bản dịch</span>
+        <span id="result-badge" class="badge badge-success">✓ Tốt</span>
+      </div>
+      <div class="card-body">
+        <div id="result-word-count" style="font-size:11px;color:var(--text-secondary);margin-bottom:8px"></div>
+        <!-- Hidden textarea để copy -->
+        <textarea id="result-output" style="display:none" readonly></textarea>
+        <div id="result-display"></div>
+        <div id="qa-info" style="font-size:11px;color:var(--text-secondary);margin:10px 0 4px"></div>
+        <div id="tts-bar" style="display:none">
+          <span style="font-size:12px;color:var(--text-muted)">🎙 Tốc độ:</span>
+          <input type="range" id="tts-rate" min="0.6" max="1.8" step="0.1" value="0.9"
+            style="flex:1;min-width:80px;accent-color:var(--gold)">
+          <span id="tts-rate-label" style="font-size:11px;color:var(--gold);width:28px">0.9×</span>
+        </div>
+        <div class="btn-group" style="margin-top:10px">
+          <button class="btn btn-primary" onclick="copyResult()" style="flex:2">📋 Sao chép toàn bộ</button>
+          <button class="btn btn-secondary" onclick="saveToHistory()">💾 Lưu</button>
+          <button id="btn-tts-play" class="btn btn-secondary" onclick="ttsToggle()">🔊 Đọc</button>
+          <button id="btn-tts-stop" class="btn btn-secondary" onclick="ttsStop()" style="display:none">⏹ Dừng</button>
+          <button class="btn btn-secondary" onclick="resetForm()">🔄 Mới</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: LỊCH SỬ ══ -->
+<div id="view-history" class="view">
+  <div class="card">
+    <div class="card-header" style="justify-content:space-between">
+      <span>📚 Lịch sử dịch</span>
+      <button class="btn btn-secondary" onclick="clearHistory()" style="font-size:11px;padding:4px 10px">🗑 Xóa tất cả</button>
+    </div>
+    <div class="card-body">
+      <div id="history-list"><div style="color:var(--text-muted);text-align:center;padding:20px">Chưa có lịch sử</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: THUẬT NGỮ ══ -->
+<div id="view-glossary" class="view">
+  <div class="card">
+    <div class="card-header">📝 Bảng thuật ngữ tùy chỉnh</div>
+    <div class="card-body">
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;line-height:1.7">
+        Thêm thuật ngữ để AI dịch nhất quán. VD: <b>凌霄阁</b> → <b>Lăng Tiêu Các</b>
+      </div>
+      <div id="glossary-rows"></div>
+      <button class="btn btn-secondary" onclick="addGlossaryRow()" style="width:100%;margin-top:4px">+ Thêm thuật ngữ</button>
+      <div class="btn-group" style="margin-top:12px">
+        <button class="btn btn-primary" onclick="saveGlossary()" style="flex:1">💾 Lưu bảng thuật ngữ</button>
+        <button class="btn btn-secondary" onclick="clearGlossary()">🗑 Xóa tất cả</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: CÀI ĐẶT ══ -->
+<div id="view-settings" class="view">
+
+    <!-- Gemini Card - Ưu tiên 1 -->
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>🤖 Gemini API Key <span style="font-size:10px;color:var(--gold)">(Ưu tiên 1 · 1M token/phút)</span></span>
+        <span id="gemini-key-status"><span class="badge badge-error">✗ Chưa có</span></span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;background:rgba(100,100,200,0.08);border:1px solid rgba(100,149,237,0.3);border-radius:8px;padding:10px 12px">
+          <b style="color:#6495ed">Cách lấy Gemini API Key miễn phí:</b><br>
+          1. Vào <b style="color:#6495ed">aistudio.google.com</b> → Get API Key<br>
+          2. Create API Key → Copy (bắt đầu bằng <b>AIza...</b>)<br>
+          3. Dán vào đây → Test → Lưu<br>
+          <span style="color:var(--gold)">✓ 1,000 req/ngày · 15 req/phút · Tốc độ cao nhất free tier</span>
+        </div>
+        <div class="input-group">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="gemini-key-input" class="input-field"
+              placeholder="AIza..." style="flex:1;font-family:monospace;font-size:13px">
+            <button onclick="toggleKeyVisibility('gemini-key-input')"
+              style="background:var(--bg-deep);border:1px solid var(--border);color:#6495ed;border-radius:8px;padding:10px;font-size:16px;cursor:pointer;flex-shrink:0">👁</button>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveGeminiKey()" style="flex:2;background:linear-gradient(135deg,#1a3a6a,#6495ed);color:#fff">💾 Lưu Gemini Key</button>
+          <button id="btn-test-gemini" class="btn btn-secondary" onclick="testGeminiKey()" style="flex:1;border-color:rgba(100,149,237,0.4);color:#6495ed">🔍 Test</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center">🤖 Miễn phí 1,000 req/ngày · 15 req/phút (Flash-Lite)</div>
+      </div>
+    </div>
+
+    <!-- OpenRouter Card - Ưu tiên 2 -->
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>🔀 OpenRouter <span style="font-size:10px;color:var(--gold)">(Ưu tiên 2 · Qwen3-32B miễn phí)</span></span>
+        <span id="openrouter-key-status"><span class="badge badge-error">✗ Chưa có</span></span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;background:rgba(150,100,255,0.06);border:1px solid rgba(150,100,255,0.25);border-radius:8px;padding:10px 12px">
+          <b style="color:#9664ff">Cách lấy OpenRouter API Key miễn phí:</b><br>
+          1. Vào <b style="color:#9664ff">openrouter.ai</b> → Sign in (dùng Google)<br>
+          2. Keys → Create Key → Copy (bắt đầu bằng <b>sk-or-...</b>)<br>
+          3. Dán vào đây → Test → Lưu<br>
+          <span style="color:var(--gold)">✓ Qwen3-32B · Llama · Mistral · Hoàn toàn miễn phí</span>
+        </div>
+        <div class="input-group">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="openrouter-key-input" class="input-field"
+              placeholder="sk-or-..." style="flex:1;font-family:monospace;font-size:13px">
+            <button onclick="toggleKeyVisibility('openrouter-key-input')"
+              style="background:var(--bg-deep);border:1px solid var(--border);color:#9664ff;border-radius:8px;padding:10px;font-size:16px;cursor:pointer;flex-shrink:0">👁</button>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveOpenRouterKey()" style="flex:2;background:linear-gradient(135deg,#2a1a5a,#9664ff);color:#fff">💾 Lưu OpenRouter Key</button>
+          <button id="btn-test-openrouter" class="btn btn-secondary" onclick="testOpenRouterKey()" style="flex:1;border-color:rgba(150,100,255,0.4);color:#9664ff">🔍 Test</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center">🔀 Miễn phí · Qwen3-32B · Llama-3.3-70B · nhiều model khác</div>
+      </div>
+    </div>
+
+    <!-- Groq Card - Ưu tiên 3 -->
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>⚡ Groq API Key <span style="font-size:10px;color:var(--text-muted)">(Ưu tiên 3 · 6K token/phút)</span></span>
+        <span id="groq-key-status"><span class="badge badge-error">✗ Chưa cấu hình</span></span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;background:rgba(78,205,196,0.06);border:1px solid rgba(78,205,196,0.2);border-radius:8px;padding:10px 12px">
+          <b style="color:var(--jade)">Cách lấy Groq API Key miễn phí:</b><br>
+          1. Mở Chrome → <b style="color:var(--jade)">console.groq.com</b><br>
+          2. Đăng ký / đăng nhập (dùng Gmail)<br>
+          3. Vào <b>API Keys</b> → <b>Create API Key</b><br>
+          4. Copy key (bắt đầu bằng <b>gsk_...</b>) → dán vào đây
+        </div>
+        <div class="input-group">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="groq-key-input" class="input-field"
+              placeholder="gsk_..." style="flex:1;font-family:monospace;font-size:13px;letter-spacing:1px">
+            <button onclick="toggleGroqKey()"
+              style="background:var(--bg-deep);border:1px solid var(--border);color:var(--jade);border-radius:8px;padding:10px;font-size:16px;cursor:pointer;flex-shrink:0">👁</button>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-secondary" onclick="saveGroqKey()" style="flex:2">💾 Lưu Groq Key</button>
+          <button id="btn-test-groq" class="btn btn-secondary" onclick="testGroqKey()" style="flex:1;border-color:rgba(78,205,196,0.4);color:var(--jade)">🔍 Test</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center">⚡ Miễn phí 14,400 req/ngày · 6,000 token/phút</div>
+      </div>
+    </div>
+
+    <!-- Cerebras Card - Ưu tiên 4 -->
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>🧠 Cerebras API Key <span style="font-size:10px;color:var(--text-muted)">(Ưu tiên 4 · 70K token/phút)</span></span>
+        <span id="cerebras-key-status"><span class="badge badge-error">✗ Chưa có</span></span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:10px 12px">
+          <b style="color:var(--gold)">Cách lấy Cerebras API Key miễn phí:</b><br>
+          1. Vào <b style="color:var(--gold)">cloud.cerebras.ai</b> → Sign up<br>
+          2. Vào <b>API Keys</b> → <b>Create new key</b><br>
+          3. Copy key → dán vào đây → Test → Lưu<br>
+          <span style="color:var(--jade)">✓ gpt-oss-120b · siêu nhanh 2000+ tokens/s · backup tốt</span>
+        </div>
+        <div class="input-group">
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="password" id="cerebras-key-input" class="input-field"
+              placeholder="csk_..." style="flex:1;font-family:monospace;font-size:13px">
+            <button onclick="toggleKeyVisibility('cerebras-key-input')"
+              style="background:var(--bg-deep);border:1px solid var(--border);color:var(--gold);border-radius:8px;padding:10px;font-size:16px;cursor:pointer;flex-shrink:0">👁</button>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="saveCerebrasKey()" style="flex:2;background:linear-gradient(135deg,#7a6a2a,#c9a84c);color:#0f0a1e">💾 Lưu Cerebras Key</button>
+          <button id="btn-test-cerebras" class="btn btn-secondary" onclick="testCerebrasKey()" style="flex:1;border-color:rgba(201,168,76,0.4);color:var(--gold)">🔍 Test</button>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:var(--text-muted);text-align:center">🧠 Miễn phí · 70,000 token/phút</div>
+      </div>
+    </div>
+
+    <!-- Pipeline mode card -->
+    <div class="card">
+      <div class="card-header">⚡ Chế độ dịch</div>
+      <div class="card-body">
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <button id="btn-mode-fast" onclick="setPipelineMode('fast')"
+            class="btn btn-secondary" style="flex:1;padding:12px 8px;text-align:center">
+            <div style="font-size:18px">🚀</div>
+            <div style="font-size:12px;font-weight:600;margin-top:4px">Nhanh</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">1 tầng · 1 call</div>
+          </button>
+          <button id="btn-mode-quality" onclick="setPipelineMode('quality')"
+            class="btn btn-secondary" style="flex:1;padding:12px 8px;text-align:center">
+            <div style="font-size:18px">🏆</div>
+            <div style="font-size:12px;font-weight:600;margin-top:4px">Chất lượng</div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px">3 tầng · 3 calls</div>
+          </button>
+        </div>
+        <div id="mode-desc" style="font-size:11px;color:var(--text-secondary);text-align:center;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px"></div>
+      </div>
+    </div>
+
+    <!-- Settings card -->
+    <div class="card">
+      <div class="card-header" style="justify-content:space-between">
+        <span>⚙️ Tùy chọn</span>
+        <span id="provider-info" style="font-size:11px;color:var(--text-secondary)"></span>
+      </div>
+      <div class="card-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:13px">Tự động lưu sau khi dịch</span>
+          <button id="toggle-autosave" onclick="toggleSetting('autosave')"
+            class="btn btn-secondary" style="font-size:11px;padding:4px 12px">Bật</button>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:13px">Hiện điểm chất lượng QA</span>
+          <button id="toggle-qa" onclick="toggleSetting('qa')"
+            class="btn btn-secondary" style="font-size:11px;padding:4px 12px">Bật</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:10px;margin-top:4px;line-height:1.8">
+          <div>Ưu tiên: <span style="color:var(--gold)">Gemini → OpenRouter → Groq → Cerebras</span></div>
+          <div>Round-robin: xen kẽ đều khi có nhiều key</div>
+        </div>
+      </div>
+    </div>
+
+</div><!-- end view-settings -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════
+const STORAGE_TYPE = (function() {
+  try { localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return 'local'; } catch(e) {}
+  try { sessionStorage.setItem('_t','1'); sessionStorage.removeItem('_t'); return 'session'; } catch(e) {}
+  return 'memory';
+})();
+const _mem = {};
+const STORE = {
+  _get(k) {
+    try {
+      if (STORAGE_TYPE === 'local')   return localStorage.getItem(k);
+      if (STORAGE_TYPE === 'session') return sessionStorage.getItem(k);
+      return _mem[k] || null;
+    } catch(e) { return _mem[k] || null; }
+  },
+  _set(k, v) {
+    try {
+      if (STORAGE_TYPE === 'local')   { localStorage.setItem(k, v); return; }
+      if (STORAGE_TYPE === 'session') { sessionStorage.setItem(k, v); return; }
+      _mem[k] = v;
+    } catch(e) { _mem[k] = v; }
+  },
+  _del(k) {
+    try {
+      if (STORAGE_TYPE === 'local')   { localStorage.removeItem(k); return; }
+      if (STORAGE_TYPE === 'session') { sessionStorage.removeItem(k); return; }
+      delete _mem[k];
+    } catch(e) { delete _mem[k]; }
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+const STATE = {
+  geminiKey:    '',
+  openrouterKey:  '',
+  groqKey:      '',
+  cerebrasKey:  '',
+  pipelineMode: 'fast',
+  settings: { autosave: false, qa: true },
+  history:  [],
+  glossary: [],
+  disabledProviders: [], // providers bị disable do hết quota ngày
+  callCount: { gemini: 0, openrouter: 0, groq: 0, cerebras: 0 },
+  tts: { playing: false, paused: false, utterance: null, chunkIdx: 0, chunks: [] }
+};
+
+// ═══════════════════════════════════════════════════════
+// STORAGE LOAD / SAVE
+// ═══════════════════════════════════════════════════════
+function loadFromStorage() {
+  STATE.geminiKey   = STORE._get('gemini_key')   || '';
+  STATE.openrouterKey = STORE._get('openrouter_key') || '';
+  STATE.groqKey     = STORE._get('groq_key')     || '';
+  STATE.cerebrasKey = STORE._get('cerebras_key') || '';
+  const s = STORE._get('settings');
+  if (s) try { Object.assign(STATE.settings, JSON.parse(s)); } catch(e) {}
+  const h = STORE._get('history');
+  if (h) try { STATE.history = JSON.parse(h); } catch(e) {}
+  const g = STORE._get('glossary');
+  if (g) try { STATE.glossary = JSON.parse(g); } catch(e) {}
+}
+
+function save() {
+  STORE._set('gemini_key',   STATE.geminiKey);
+  STORE._set('openrouter_key', STATE.openrouterKey);
+  STORE._set('groq_key',     STATE.groqKey);
+  STORE._set('cerebras_key', STATE.cerebrasKey);
+  STORE._set('settings',     JSON.stringify(STATE.settings));
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+function goTab(btnEl) {
+  const name = btnEl.getAttribute('data-tab');
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btnEl.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  if (name === 'history')  renderHistory();
+  if (name === 'glossary') renderGlossary();
+  if (name === 'settings') renderProviderInfo();
+}
+function goTabByName(name) {
+  const btn = document.querySelector(`.tab-btn[data-tab="${name}"]`);
+  if (btn) goTab(btn);
+}
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+function toast(msg) {
+  const c = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast-msg';
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3100);
+}
+
+// ═══════════════════════════════════════════════════════
+// KEY STATUS / BANNER
+// ═══════════════════════════════════════════════════════
+function updateKeyStatus(id, status) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (status === null) { el.innerHTML = '<span class="badge badge-warning">⏳ Testing...</span>'; return; }
+  el.innerHTML = status
+    ? '<span class="badge badge-success">✓ Có key</span>'
+    : '<span class="badge badge-error">✗ Lỗi</span>';
+}
+function showApiKeyBanner() {
+  const hasAny = STATE.geminiKey || STATE.openrouterKey || STATE.groqKey || STATE.cerebrasKey;
+  const banner = document.getElementById('api-key-banner');
+  if (banner) banner.classList.toggle('show', !hasAny);
+}
+function hideApiKeyBanner() {
+  const banner = document.getElementById('api-key-banner');
+  if (banner) banner.classList.remove('show');
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE KEY FUNCTIONS
+// ═══════════════════════════════════════════════════════
+function saveGeminiKey() {
+  const key = document.getElementById('gemini-key-input').value.trim();
+  STATE.geminiKey = key;
+  save();
+  updateKeyStatus('gemini-key-status', !!key);
+  if (key) hideApiKeyBanner();
+  toast(key ? '✅ Đã lưu Gemini Key' : '🗑 Đã xóa Gemini Key');
+}
+function saveOpenRouterKey() {
+  const key = document.getElementById('openrouter-key-input').value.trim();
+  STATE.openrouterKey = key;
+  save();
+  updateKeyStatus('openrouter-key-status', !!key);
+  if (key) hideApiKeyBanner();
+  toast(key ? '✅ Đã lưu OpenRouter Key' : '🗑 Đã xóa OpenRouter Key');
+}
+function saveGroqKey() {
+  const key = document.getElementById('groq-key-input').value.trim();
+  STATE.groqKey = key;
+  save();
+  updateKeyStatus('groq-key-status', !!key);
+  if (key) hideApiKeyBanner();
+  toast(key ? '✅ Đã lưu Groq Key' : '🗑 Đã xóa Groq Key');
+}
+function saveCerebrasKey() {
+  const key = document.getElementById('cerebras-key-input').value.trim();
+  STATE.cerebrasKey = key;
+  save();
+  updateKeyStatus('cerebras-key-status', !!key);
+  if (key) hideApiKeyBanner();
+  toast(key ? '✅ Đã lưu Cerebras Key' : '🗑 Đã xóa Cerebras Key');
+}
+
+// ═══════════════════════════════════════════════════════
+// TEST KEY FUNCTIONS
+// ═══════════════════════════════════════════════════════
+async function testGeminiKey() {
+  const key = document.getElementById('gemini-key-input').value.trim() || STATE.geminiKey;
+  if (!key) { toast('⚠️ Nhập key trước'); return; }
+  const btn = document.getElementById('btn-test-gemini');
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    const model = 'gemini-2.5-flash-lite';
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+      { method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ contents:[{parts:[{text:'Xin chào!'}]}], generationConfig:{maxOutputTokens:20} }) }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'HTTP ' + res.status);
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    updateKeyStatus('gemini-key-status', true);
+    toast('✅ Gemini OK: ' + reply.substring(0, 40));
+  } catch(e) {
+    updateKeyStatus('gemini-key-status', false);
+    toast('❌ Gemini lỗi: ' + e.message);
+  } finally { btn.textContent = '🔍 Test'; btn.disabled = false; }
+}
+
+async function testOpenRouterKey() {
+  const key = document.getElementById('openrouter-key-input').value.trim() || STATE.openrouterKey;
+  if (!key) { toast('⚠️ Nhập key trước'); return; }
+  if (!key.startsWith('sk-or-')) { toast('⚠️ OpenRouter key phải bắt đầu bằng sk-or-'); return; }
+  const btn = document.getElementById('btn-test-openrouter');
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    // Thử lần lượt các free model cho đến khi 1 cái thành công
+    let testOk = false;
+    let testReply = '';
+    let lastErr = '';
+    for (const orModel of OR_MODELS) {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + key,
+          'HTTP-Referer': 'https://tienhiep-translator.github.io',
+          'X-Title': 'Tien Hiep Translator'
+        },
+        body: JSON.stringify({
+          model: orModel,
+          messages: [{ role: 'user', content: 'Hi' }],
+          max_tokens: 10
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data?.choices?.[0]?.message?.content) {
+        testOk = true;
+        testReply = orModel.split('/').pop().replace(':free','');
+        break;
+      }
+      lastErr = `${orModel}: HTTP ${res.status}`;
+    }
+    if (!testOk) throw new Error('Tất cả model đều lỗi. Cuối: ' + lastErr);
+    updateKeyStatus('openrouter-key-status', true);
+    toast('✅ OpenRouter OK: ' + testReply);
+  } catch(e) {
+    updateKeyStatus('openrouter-key-status', false);
+    toast('❌ OpenRouter lỗi: ' + e.message);
+  } finally { btn.textContent = '🔍 Test'; btn.disabled = false; }
+}
+
+async function testGroqKey() {
+  const key = document.getElementById('groq-key-input').value.trim() || STATE.groqKey;
+  if (!key) { toast('⚠️ Nhập key trước'); return; }
+  const btn = document.getElementById('btn-test-groq');
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile',
+        messages: [{role:'user',content:'Hi'}], max_tokens: 10 })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'HTTP ' + res.status);
+    updateKeyStatus('groq-key-status', true);
+    toast('✅ Groq OK');
+  } catch(e) {
+    updateKeyStatus('groq-key-status', false);
+    toast('❌ Groq lỗi: ' + e.message);
+  } finally { btn.textContent = '🔍 Test'; btn.disabled = false; }
+}
+
+async function testCerebrasKey() {
+  const key = document.getElementById('cerebras-key-input').value.trim() || STATE.cerebrasKey;
+  if (!key) { toast('⚠️ Nhập key trước'); return; }
+  const btn = document.getElementById('btn-test-cerebras');
+  btn.textContent = '⏳'; btn.disabled = true;
+  try {
+    const res = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({ model: 'gpt-oss-120b',
+        messages: [{role:'user',content:'Hi'}], max_tokens: 10 })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error?.message || 'HTTP ' + res.status);
+    updateKeyStatus('cerebras-key-status', true);
+    toast('✅ Cerebras OK');
+  } catch(e) {
+    updateKeyStatus('cerebras-key-status', false);
+    toast('❌ Cerebras lỗi: ' + e.message);
+  } finally { btn.textContent = '🔍 Test'; btn.disabled = false; }
+}
+
+// ═══════════════════════════════════════════════════════
+// KEY VISIBILITY
+// ═══════════════════════════════════════════════════════
+function toggleKeyVisibility(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+function toggleGroqKey() { toggleKeyVisibility('groq-key-input'); }
+
+// ═══════════════════════════════════════════════════════
+// PROVIDER SYSTEM
+// ═══════════════════════════════════════════════════════
+// Thứ tự ưu tiên: Gemini → OpenRouter → Groq → Cerebras
+function activeProviders() {
+  const list = [];
+  if (STATE.geminiKey    && !STATE.disabledProviders.includes('gemini'))   list.push('gemini');
+  if (STATE.openrouterKey  && !STATE.disabledProviders.includes('openrouter')) list.push('openrouter');
+  if (STATE.groqKey      && !STATE.disabledProviders.includes('groq'))     list.push('groq');
+  if (STATE.cerebrasKey  && !STATE.disabledProviders.includes('cerebras')) list.push('cerebras');
+  return list;
+}
+
+function pickProvider(exclude) {
+  const candidates = activeProviders().filter(p => !exclude.includes(p));
+  if (candidates.length === 0) return null;
+  if (candidates.length === 1) return candidates[0];
+  // Round-robin: ưu tiên provider có callCount thấp nhất
+  let best = candidates[0];
+  let bestCount = STATE.callCount[candidates[0]] ?? 0;
+  for (let i = 1; i < candidates.length; i++) {
+    const cnt = STATE.callCount[candidates[i]] ?? 0;
+    if (cnt < bestCount) { best = candidates[i]; bestCount = cnt; }
+  }
+  return best;
+}
+
+function getProviderDelay() {
+  const active = activeProviders();
+  if (active.length >= 2) return 600;
+  if (active[0] === 'gemini')   return 4500;
+  if (active[0] === 'openrouter') return 1500;
+  if (active[0] === 'cerebras') return 300;
+  return 2000; // groq
+}
+function getChunkDelay() {
+  const active = activeProviders();
+  if (active.length >= 2) return 1200;
+  if (active[0] === 'gemini')   return 5500;
+  if (active[0] === 'openrouter') return 2500;
+  if (active[0] === 'cerebras') return 400;
+  return 2200; // groq
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function countdownWait(sec, label) {
+  for (let i = sec; i > 0; i--) {
+    updateProgressLabel(`${label} ${i}s...`);
+    await sleep(1000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CALL AI (main dispatcher + retry)
+// ═══════════════════════════════════════════════════════
+async function callAI(systemPrompt, userPrompt) {
+  // Lọc provider: có key VÀ chưa hết quota ngày
+  const available = [];
+  if (STATE.geminiKey    && !STATE.disabledProviders.includes('gemini'))   available.push('gemini');
+  if (STATE.openrouterKey  && !STATE.disabledProviders.includes('openrouter')) available.push('openrouter');
+  if (STATE.groqKey      && !STATE.disabledProviders.includes('groq'))     available.push('groq');
+  if (STATE.cerebrasKey  && !STATE.disabledProviders.includes('cerebras')) available.push('cerebras');
+
+  if (available.length === 0) {
+    const allKeys = !!(STATE.geminiKey || STATE.openrouterKey || STATE.groqKey || STATE.cerebrasKey);
+    throw new Error(allKeys
+      ? 'QUOTA_EXHAUSTED: Tất cả provider đã hết quota ngày hôm nay'
+      : 'Chưa có API Key nào được cấu hình');
+  }
+
+  const tried = [];
+  let lastError = '';
+
+  while (tried.length < available.length) {
+    const p = pickProvider(tried);
+    if (!p) break;
+    tried.push(p);
+    STATE.callCount[p] = (STATE.callCount[p] || 0) + 1;
+
+    try {
+      let result;
+      if      (p === 'gemini')   result = await callGeminiAPI(STATE.geminiKey, systemPrompt, userPrompt);
+      else if (p === 'openrouter') result = await callOpenRouterAPI(STATE.openrouterKey, systemPrompt, userPrompt);
+      else if (p === 'groq')     result = await callGroqAPI(STATE.groqKey, systemPrompt, userPrompt);
+      else if (p === 'cerebras') result = await callCerebrasAPI(STATE.cerebrasKey, systemPrompt, userPrompt);
+      return result;
+    } catch(e) {
+      lastError = e.message || '';
+      const isDaily = lastError.includes('hết quota ngày') || lastError.includes('daily')
+                   || lastError.includes('limit: 0') || lastError.includes('RESOURCE_EXHAUSTED')
+                   || lastError.includes('QUOTA_EXHAUSTED_DAILY');
+      const isRateLimit = lastError.includes('QUOTA_EXHAUSTED') && !isDaily;
+
+      if (isDaily) {
+        STATE.disabledProviders.push(p);
+        continue; // thử provider tiếp
+      }
+      if (isRateLimit) continue; // thử provider tiếp
+      throw e; // lỗi khác (401, network) → throw ngay
+    }
+  }
+
+  // Tất cả đều thất bại
+  const allDaily = available.every(p => STATE.disabledProviders.includes(p));
+  if (allDaily) throw new Error('QUOTA_EXHAUSTED: Tất cả provider đã hết quota ngày — ' + lastError);
+  throw new Error('QUOTA_EXHAUSTED: ' + lastError);
+}
+
+// ═══════════════════════════════════════════════════════
+// API FUNCTIONS
+// ═══════════════════════════════════════════════════════
+
+// ── Gemini ──
+async function callGeminiAPI(apiKey, systemPrompt, userPrompt, attempt = 0) {
+  const MAX = 3;
+  if (attempt >= MAX) throw new Error('QUOTA_EXHAUSTED: Gemini rate limit');
+  const model = 'gemini-2.5-flash-lite';
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: userPrompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
+      })
+    }
+  );
+  const data = await res.json();
+  if (res.status === 429) {
+    const errMsg = data?.error?.message || '';
+    if (errMsg.includes('limit: 0') || errMsg.includes('RESOURCE_EXHAUSTED')
+        || errMsg.toLowerCase().includes('daily') || errMsg.toLowerCase().includes('quota exceeded')) {
+      throw new Error('QUOTA_EXHAUSTED: Gemini hết quota ngày');
+    }
+    const mSec = errMsg.match(/(\d+)\s*second/);
+    const waitSec = mSec ? parseInt(mSec[1]) + 2 : 15;
+    if (waitSec > 60) throw new Error('QUOTA_EXHAUSTED: Gemini rate limit > 60s');
+    await countdownWait(waitSec, '⏳ Gemini rate limit — chờ');
+    return callGeminiAPI(apiKey, systemPrompt, userPrompt, attempt + 1);
+  }
+  if (res.status === 401) throw new Error('Gemini API key không hợp lệ');
+  if (!res.ok) throw new Error('Gemini lỗi: ' + (data?.error?.message || res.status));
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Gemini không trả về nội dung');
+  return text.trim();
+}
+
+// ── OpenRouter ──
+async function callOpenRouterAPI(apiKey, systemPrompt, userPrompt, attempt = 0, modelIdx = 0) {
+  const MAX = 3;
+  if (attempt >= MAX) throw new Error('QUOTA_EXHAUSTED: OpenRouter rate limit');
+  const model = OR_MODELS[modelIdx] || OR_MODELS[0];
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + apiKey,
+      'HTTP-Referer': 'https://tienhiep-translator.github.io',
+      'X-Title': 'Tien Hiep Translator'
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userPrompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 4096
+    })
+  });
+  const data = await res.json();
+  if (res.status === 404 || res.status === 503) {
+    // Model không tồn tại hoặc unavailable → thử model tiếp
+    if (modelIdx < OR_MODELS.length - 1) {
+      return callOpenRouterAPI(apiKey, systemPrompt, userPrompt, 0, modelIdx + 1);
+    }
+    throw new Error('OpenRouter: tất cả model free đều không khả dụng');
+  }
+  if (res.status === 429) {
+    const errMsg = data?.error?.message || '';
+    if (errMsg.toLowerCase().includes('daily') || errMsg.toLowerCase().includes('quota exceeded')) {
+      throw new Error('QUOTA_EXHAUSTED: OpenRouter hết quota ngày');
+    }
+    const m = errMsg.match(/(\d+(?:\.\d+)?)\s*s/);
+    const waitSec = m ? Math.ceil(parseFloat(m[1])) + 2 : 15;
+    if (waitSec > 60) throw new Error('QUOTA_EXHAUSTED: OpenRouter hết quota ngày');
+    await countdownWait(waitSec, '⏳ OpenRouter rate limit — chờ');
+    return callOpenRouterAPI(apiKey, systemPrompt, userPrompt, attempt + 1, modelIdx);
+  }
+  if (res.status === 401 || res.status === 403) throw new Error('OpenRouter API key không hợp lệ');
+  if (!res.ok) throw new Error('OpenRouter lỗi: ' + (data?.error?.message || res.status));
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error('OpenRouter không trả về nội dung');
+  return text.trim();
+}
+
+// ── Groq ──
+const GROQ_MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
+const OR_MODELS = [
+  'qwen/qwen3-32b:free',
+  'meta-llama/llama-4-maverick:free',
+  'deepseek/deepseek-chat-v3-0324:free',
+  'mistralai/mistral-small-3.1-24b-instruct:free'
+];
+async function callGroqAPI(apiKey, systemPrompt, userPrompt, attempt = 0, modelIdx = 0) {
+  const MAX = 3;
+  if (attempt >= MAX) throw new Error('QUOTA_EXHAUSTED: Groq rate limit');
+  const model = GROQ_MODELS[modelIdx] || GROQ_MODELS[0];
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify({
+      model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userPrompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 4096
+    })
+  });
+  const data = await res.json();
+  if (res.status === 429) {
+    const errMsg = data?.error?.message || '';
+    if (errMsg.toLowerCase().includes('daily') || errMsg.toLowerCase().includes('quota exceeded')) {
+      throw new Error('QUOTA_EXHAUSTED: Groq hết quota ngày');
+    }
+    const mSec = errMsg.match(/try again in ([\d.]+)s/);
+    const mMin = errMsg.match(/try again in ([\d.]+)m/);
+    let waitSec = 12;
+    if (mSec) waitSec = Math.ceil(parseFloat(mSec[1])) + 2;
+    else if (mMin) waitSec = Math.ceil(parseFloat(mMin[1]) * 60) + 2;
+    if (waitSec > 60) throw new Error('QUOTA_EXHAUSTED: Groq hết quota ngày');
+    await countdownWait(waitSec, '⏳ Groq rate limit — chờ');
+    return callGroqAPI(apiKey, systemPrompt, userPrompt, attempt + 1, modelIdx);
+  }
+  if (res.status === 400 && modelIdx < GROQ_MODELS.length - 1) {
+    return callGroqAPI(apiKey, systemPrompt, userPrompt, 0, modelIdx + 1);
+  }
+  if (res.status === 401) throw new Error('Groq API key không hợp lệ');
+  if (!res.ok) throw new Error('Groq lỗi: ' + (data?.error?.message || res.status));
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error('Groq không trả về nội dung');
+  return text.trim();
+}
+
+// ── Cerebras ──
+async function callCerebrasAPI(apiKey, systemPrompt, userPrompt, attempt = 0) {
+  const MAX = 3;
+  if (attempt >= MAX) throw new Error('QUOTA_EXHAUSTED: Cerebras rate limit');
+  const res = await fetch('https://api.cerebras.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
+    body: JSON.stringify({
+      model: 'gpt-oss-120b',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user',   content: userPrompt }
+      ],
+      temperature: 0.65,
+      top_p: 0.9,
+      max_tokens: 4096
+      // Không dùng frequency_penalty/presence_penalty - Cerebras không hỗ trợ
+    })
+  });
+  const data = await res.json();
+  if (res.status === 429) {
+    const errMsg = data?.error?.message || '';
+    if (errMsg.toLowerCase().includes('daily') || errMsg.toLowerCase().includes('quota exceeded')) {
+      throw new Error('QUOTA_EXHAUSTED: Cerebras hết quota ngày');
+    }
+    const m = errMsg.match(/(\d+(?:\.\d+)?)\s*s/);
+    const waitSec = m ? Math.ceil(parseFloat(m[1])) + 1 : 10;
+    if (waitSec > 60) throw new Error('QUOTA_EXHAUSTED: Cerebras hết quota ngày');
+    await countdownWait(waitSec, '⏳ Cerebras rate limit — chờ');
+    return callCerebrasAPI(apiKey, systemPrompt, userPrompt, attempt + 1);
+  }
+  if (res.status === 401) throw new Error('Cerebras API key không hợp lệ');
+  if (!res.ok) throw new Error('Cerebras lỗi: ' + (data?.error?.message || res.status));
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error('Cerebras không trả về nội dung');
+  return text.trim();
+}
+
+// ═══════════════════════════════════════════════════════
+// TRANSLATION PIPELINE
+// ═══════════════════════════════════════════════════════
+function buildSystemPrompt() {
+  const glossaryHints = STATE.glossary.filter(g => g.src && g.dst)
+    .map(g => `${g.src} → ${g.dst}`).join(', ');
+  return `Bạn là dịch giả chuyên nghiệp tiểu thuyết tiên hiệp Trung Quốc sang tiếng Việt.
+Phong cách: cổ phong, trang nghiêm, giàu chất văn học. Ưu tiên từ Hán Việt.
+Không thêm bình luận hay giải thích. Chỉ trả về bản dịch.${
+  glossaryHints ? '\n\nBảng thuật ngữ:\n' + glossaryHints : ''}`;
+}
+
+async function translateChunkFast(chunk, prevContext) {
+  const system = buildSystemPrompt();
+  const user = prevContext
+    ? `Ngữ cảnh trước:\n${prevContext}\n\nDịch đoạn sau:\n${chunk}`
+    : `Dịch đoạn sau:\n${chunk}`;
+  return await callAI(system, user);
+}
+
+async function translateChunkQuality(chunk, prevContext, chunkIdx, total) {
+  const system = buildSystemPrompt();
+
+  // Tier 1: Phân tích ngữ cảnh
+  updateProgressLabel(`🔍 [${chunkIdx+1}/${total}] Phân tích ngữ cảnh...`);
+  const analysis = await callAI(system,
+    `Phân tích ngắn gọn tên nhân vật, địa danh, pháp thuật trong đoạn sau (dưới 80 từ):\n${chunk}`);
+  await sleep(getProviderDelay());
+
+  // Tier 2: Dịch
+  updateProgressLabel(`⚔️ [${chunkIdx+1}/${total}] Dịch cổ phong...`);
+  const draft = await callAI(system,
+    `${prevContext ? 'Ngữ cảnh:\n' + prevContext + '\n\n' : ''}Ghi chú thuật ngữ:\n${analysis}\n\nDịch:\n${chunk}`);
+  await sleep(getProviderDelay());
+
+  // Tier 3: Trau chuốt
+  updateProgressLabel(`✨ [${chunkIdx+1}/${total}] Trau chuốt văn phong...`);
+  const polished = await callAI(system,
+    `Trau chuốt bản dịch sau — giữ nghĩa gốc, nâng cao văn phong cổ phong:\n${draft}`);
+  return polished;
+}
+
+async function translateChunk(chunk, prevContext, idx, total) {
+  let text;
+  if (STATE.pipelineMode === 'fast') {
+    text = await translateChunkFast(chunk, prevContext);
+  } else {
+    text = await translateChunkQuality(chunk, prevContext, idx, total);
+  }
+  const qaScore = computeQAScore(chunk, text);
+  return { text, qaScore };
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN TRANSLATE FUNCTION
+// ═══════════════════════════════════════════════════════
+async function startTranslation() {
+  if (!STATE.geminiKey && !STATE.openrouterKey && !STATE.groqKey && !STATE.cerebrasKey) {
+    toast('⚠️ Cần ít nhất 1 API Key trong Cài đặt');
+    goTabByName('settings');
+    return;
+  }
+  const rawText = document.getElementById('raw-input').value.trim();
+  if (!rawText || rawText.length < 50) { toast('⚠️ Nhập văn bản cần dịch (tối thiểu 50 ký tự)'); return; }
+
+  const processedText = applyGlossaryPreprocess(rawText);
+  const chunkSize = parseInt(document.getElementById('chunk-size').value) || 1200;
+  const chunks = splitIntoChunks(processedText, chunkSize);
+
+  STATE.callCount = { gemini: 0, openrouter: 0, groq: 0, cerebras: 0 };
+  // disabledProviders KHÔNG reset — quota ngày vẫn hết dù dịch chương khác
+
+  document.getElementById('btn-translate').disabled = true;
+  document.getElementById('progress-section').style.display = 'block';
+  document.getElementById('result-section').style.display = 'none';
+
+  const results = [];
+  let prevContext = '';
+  let totalQA = 0;
+
+  for (let i = 0; i < chunks.length; i++) {
+    updateProgress(i / chunks.length, `Đang dịch đoạn ${i+1}/${chunks.length}...`);
+    try {
+      const result = await translateChunk(chunks[i], prevContext, i, chunks.length);
+      results.push(result.text);
+      totalQA += result.qaScore;
+      // Context cho chunk tiếp theo: 2 câu cuối
+      const sents = result.text.replace(/([.!?।…])\s+/g, '$1\x00').split('\x00');
+      prevContext = sents.slice(-2).join(' ');
+    } catch(e) {
+      const msg = e.message || '';
+      if (msg.startsWith('QUOTA_EXHAUSTED')) {
+        const isDaily = msg.includes('hết quota ngày') || msg.includes('daily')
+                     || msg.includes('limit: 0') || msg.includes('QUOTA_EXHAUSTED_DAILY');
+        document.getElementById('btn-translate').disabled = false;
+        document.getElementById('progress-section').style.display = 'none';
+        if (results.length > 0) {
+          const partial = results.join('\n\n');
+          document.getElementById('result-display').textContent = partial;
+          document.getElementById('result-section').style.display = 'block';
+          document.getElementById('result-word-count').textContent =
+            `⚠️ Dịch được ${results.length}/${chunks.length} đoạn — hết quota`;
+        }
+        showQuotaError(isDaily ? 'daily' : 'rateLimit', msg);
+        return;
+      }
+      updateProgressLabel(`⚠️ Đoạn ${i+1}: ${msg.substring(0,80)} — giữ bản gốc`);
+      results.push(chunks[i]);
+      await sleep(1500);
+    }
+    if (i < chunks.length - 1) await sleep(getChunkDelay());
+  }
+
+  updateProgress(1, 'Hoàn thành!');
+  const finalText = results.join('\n\n');
+  const avgQA = Math.round(totalQA / chunks.length);
+
+  document.getElementById('result-output').value = finalText;
+  const displayEl = document.getElementById('result-display');
+  displayEl.textContent = finalText;
+
+  const charCount = finalText.length;
+  const wordCount = finalText.split(/\s+/).filter(Boolean).length;
+  document.getElementById('result-word-count').textContent =
+    charCount.toLocaleString() + ' ký tự · ' + wordCount.toLocaleString() + ' từ';
+
+  setTimeout(() => { displayEl.scrollTop = 0; displayEl.scrollIntoView({behavior:'smooth',block:'start'}); }, 100);
+  document.getElementById('result-section').style.display = 'block';
+
+  if (STATE.settings.qa) {
+    document.getElementById('qa-info').textContent =
+      `📊 Chất lượng: ${avgQA}% • ${chunks.length} đoạn • ${finalText.length.toLocaleString()} ký tự`;
+  }
+  const badge = document.getElementById('result-badge');
+  badge.className = 'badge ' + (avgQA >= 85 ? 'badge-success' : avgQA >= 70 ? 'badge-warning' : 'badge-error');
+  badge.textContent = avgQA >= 85 ? '✓ Tốt' : avgQA >= 70 ? '⚠ Xem lại' : '⚠ Kiểm tra';
+
+  document.getElementById('btn-translate').disabled = false;
+  if (STATE.settings.autosave) saveToHistory(true);
+  else toast('✅ Dịch xong! Nhấn Lưu để lưu vào lịch sử.');
+}
+
+// ═══════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════
+function splitIntoChunks(text, size) {
+  const chunks = [];
+  let i = 0;
+  while (i < text.length) {
+    let end = Math.min(i + size, text.length);
+    if (end < text.length) {
+      const breakAt = text.lastIndexOf('\n', end);
+      if (breakAt > i + size * 0.6) end = breakAt + 1;
+    }
+    const chunk = text.slice(i, end).trim();
+    if (chunk) chunks.push(chunk);
+    i = end;
+  }
+  return chunks.filter(c => c.length > 0);
+}
+
+function computeQAScore(original, translated) {
+  if (!translated || translated.length < 10) return 0;
+  let score = 70;
+  const ratio = translated.length / Math.max(original.length, 1);
+  if (ratio > 0.3 && ratio < 4) score += 15;
+  if (translated.includes('...') || translated.includes('—')) score += 5;
+  if (!/[a-zA-Z]{10,}/.test(translated)) score += 10;
+  return Math.min(100, Math.max(0, Math.round(score)));
+}
+
+function applyGlossaryPreprocess(text) {
+  let result = text;
+  STATE.glossary.filter(g => g.src && g.dst).forEach(g => {
+    result = result.split(g.src).join(g.dst);
+  });
+  return result;
+}
+
+function updateProgress(ratio, label) {
+  const fill = document.getElementById('progress-fill');
+  if (fill) fill.style.width = Math.round(ratio * 100) + '%';
+  updateProgressLabel(label);
+}
+function updateProgressLabel(label) {
+  const el = document.getElementById('progress-label');
+  if (el) el.textContent = label;
+}
+
+function showQuotaError(type, msg) {
+  const modal = document.getElementById('quota-error-modal');
+  const title = document.getElementById('quota-modal-title');
+  const body  = document.getElementById('quota-modal-body');
+  if (!modal) return;
+  if (type === 'daily') {
+    title.textContent = '📅 Hết quota ngày';
+    body.textContent  = 'Tất cả provider đã hết quota ngày hôm nay. Thêm key khác hoặc quay lại ngày mai.';
+  } else {
+    title.textContent = '⏳ Rate limit';
+    body.textContent  = 'Vượt quá giới hạn tốc độ. Thử lại sau ít phút hoặc thêm API key từ provider khác.';
+  }
+  modal.classList.add('show');
+}
+
+function copyResult() {
+  const text = document.getElementById('result-output').value;
+  if (!text) return;
+  navigator.clipboard.writeText(text).then(() => toast('✅ Đã sao chép!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('✅ Đã sao chép!');
+  });
+}
+
+function resetForm() {
+  document.getElementById('raw-input').value = '';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('progress-section').style.display = 'none';
+  document.getElementById('result-display').textContent = '';
+  document.getElementById('result-output').value = '';
+  ttsStop();
+}
+
+// ═══════════════════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════════════════
+function saveToHistory(silent) {
+  const text = document.getElementById('result-output').value;
+  if (!text) { if (!silent) toast('⚠️ Không có bản dịch để lưu'); return; }
+  const raw   = document.getElementById('raw-input').value.slice(0, 80);
+  const entry = {
+    id:      Date.now(),
+    title:   raw.replace(/\s+/g,' ').slice(0,50) + '...',
+    text,
+    date:    new Date().toLocaleDateString('vi-VN'),
+    chars:   text.length
+  };
+  STATE.history.unshift(entry);
+  if (STATE.history.length > 50) STATE.history = STATE.history.slice(0, 50);
+  STORE._set('history', JSON.stringify(STATE.history));
+  if (!silent) toast('✅ Đã lưu vào lịch sử');
+}
+
+function renderHistory() {
+  const el = document.getElementById('history-list');
+  if (!el) return;
+  if (!STATE.history.length) {
+    el.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:20px">Chưa có lịch sử</div>';
+    return;
+  }
+  el.innerHTML = STATE.history.map(h => `
+    <div class="history-item" onclick="loadHistory(${h.id})">
+      <div class="history-title">${h.title}</div>
+      <div class="history-meta">${h.date} · ${h.chars.toLocaleString()} ký tự</div>
+    </div>`).join('');
+}
+
+function loadHistory(id) {
+  const h = STATE.history.find(x => x.id === id);
+  if (!h) return;
+  document.getElementById('result-output').value = h.text;
+  document.getElementById('result-display').textContent = h.text;
+  document.getElementById('result-section').style.display = 'block';
+  document.getElementById('result-word-count').textContent = h.chars.toLocaleString() + ' ký tự';
+  goTabByName('translate');
+  toast('✅ Đã tải bản dịch từ lịch sử');
+}
+
+function clearHistory() {
+  if (!confirm('Xóa toàn bộ lịch sử?')) return;
+  STATE.history = [];
+  STORE._del('history');
+  renderHistory();
+  toast('🗑 Đã xóa lịch sử');
+}
+
+// ═══════════════════════════════════════════════════════
+// GLOSSARY
+// ═══════════════════════════════════════════════════════
+function renderGlossary() {
+  const el = document.getElementById('glossary-rows');
+  if (!el) return;
+  if (!STATE.glossary.length) STATE.glossary = [{ src:'', dst:'' }];
+  el.innerHTML = STATE.glossary.map((g, i) => `
+    <div class="glossary-row">
+      <input class="input-field" placeholder="Từ gốc (VD: 凌霄阁)" value="${g.src || ''}"
+        oninput="STATE.glossary[${i}].src = this.value" style="font-size:13px;padding:8px">
+      <input class="input-field" placeholder="Dịch (VD: Lăng Tiêu Các)" value="${g.dst || ''}"
+        oninput="STATE.glossary[${i}].dst = this.value" style="font-size:13px;padding:8px">
+      <button class="btn btn-secondary" onclick="removeGlossaryRow(${i})"
+        style="padding:8px 10px;font-size:13px;flex-shrink:0">✕</button>
+    </div>`).join('');
+}
+
+function addGlossaryRow() {
+  STATE.glossary.push({ src:'', dst:'' });
+  renderGlossary();
+}
+
+function removeGlossaryRow(i) {
+  STATE.glossary.splice(i, 1);
+  renderGlossary();
+}
+
+function saveGlossary() {
+  STATE.glossary = STATE.glossary.filter(g => g.src || g.dst);
+  STORE._set('glossary', JSON.stringify(STATE.glossary));
+  toast('✅ Đã lưu bảng thuật ngữ (' + STATE.glossary.length + ' mục)');
+}
+
+function clearGlossary() {
+  if (!confirm('Xóa toàn bộ thuật ngữ?')) return;
+  STATE.glossary = [];
+  STORE._del('glossary');
+  renderGlossary();
+  toast('🗑 Đã xóa thuật ngữ');
+}
+
+// ═══════════════════════════════════════════════════════
+// PIPELINE MODE
+// ═══════════════════════════════════════════════════════
+function setPipelineMode(mode) {
+  STATE.pipelineMode = mode;
+  document.getElementById('btn-mode-fast').style.borderColor    = mode === 'fast'    ? 'var(--gold)' : '';
+  document.getElementById('btn-mode-quality').style.borderColor = mode === 'quality' ? 'var(--gold)' : '';
+  document.getElementById('mode-desc').textContent = mode === 'fast'
+    ? '🚀 Nhanh: 1 call/đoạn — tốt cho draft nhanh'
+    : '🏆 Chất lượng: 3 call/đoạn — phân tích → dịch → trau chuốt';
+}
+
+// ═══════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════
+function toggleSetting(key) {
+  STATE.settings[key] = !STATE.settings[key];
+  const btn = document.getElementById('toggle-' + key);
+  if (btn) {
+    btn.textContent = STATE.settings[key] ? 'Bật' : 'Tắt';
+    btn.style.color = STATE.settings[key] ? 'var(--green)' : '';
+  }
+  save();
+}
+
+function renderProviderInfo() {
+  const active = activeProviders();
+  const el = document.getElementById('provider-info');
+  if (el) el.textContent = active.length
+    ? active.join(' + ') + ' đang hoạt động'
+    : 'Chưa có provider';
+}
+
+// ═══════════════════════════════════════════════════════
+// TTS
+// ═══════════════════════════════════════════════════════
+const TTS = window.speechSynthesis || null;
+
+function ttsGetVietnameseVoice() {
+  if (!TTS) return null;
+  const voices = TTS.getVoices();
+  const priority = [
+    v => v.name.includes('Google') && v.lang.startsWith('vi'),
+    v => v.name.toLowerCase().includes('female') && v.lang.startsWith('vi'),
+    v => v.lang === 'vi-VN',
+    v => v.lang.startsWith('vi'),
+  ];
+  for (const test of priority) {
+    const found = voices.find(test);
+    if (found) return found;
+  }
+  return null;
+}
+
+function ttsSplitText(text) {
+  const chunks = [];
+  const sentences = text.replace(/([.!?।…,，。！？；;])\s*/g, '$1|').split('|');
+  let current = '';
+  for (const s of sentences) {
+    if ((current + s).length > 250 && current) {
+      chunks.push(current.trim());
+      current = s;
+    } else {
+      current += s + ' ';
+    }
+  }
+  if (current.trim()) chunks.push(current.trim());
+  return chunks.filter(c => c.length > 2);
+}
+
+function ttsToggle() {
+  if (!TTS) { toast('⚠️ Trình duyệt không hỗ trợ TTS'); return; }
+  if (STATE.tts.playing && !STATE.tts.paused) {
+    TTS.pause();
+    STATE.tts.paused = true;
+    const btn = document.getElementById('btn-tts-play');
+    if (btn) btn.textContent = '▶️ Tiếp';
+    return;
+  }
+  if (STATE.tts.paused) {
+    TTS.resume();
+    STATE.tts.paused = false;
+    const btn = document.getElementById('btn-tts-play');
+    if (btn) btn.textContent = '⏸ Tạm dừng';
+    return;
+  }
+  // Bắt đầu đọc mới
+  const text = document.getElementById('result-display').textContent;
+  if (!text || text.length < 5) { toast('⚠️ Không có bản dịch để đọc'); return; }
+  STATE.tts.chunks  = ttsSplitText(text);
+  STATE.tts.chunkIdx = 0;
+  STATE.tts.playing = true;
+  STATE.tts.paused  = false;
+  const ttsBarEl = document.getElementById('tts-bar');
+  if (ttsBarEl) ttsBarEl.style.display = 'flex';
+  const stopBtn = document.getElementById('btn-tts-stop');
+  if (stopBtn) stopBtn.style.display = 'inline-flex';
+  const playBtn = document.getElementById('btn-tts-play');
+  if (playBtn) playBtn.textContent = '⏸ Tạm dừng';
+  ttsReadNextChunk();
+}
+
+function ttsReadNextChunk() {
+  if (!STATE.tts.playing) return;
+  if (STATE.tts.chunkIdx >= STATE.tts.chunks.length) {
+    ttsStop();
+    return;
+  }
+  const ttsVoice = ttsGetVietnameseVoice();
+  const rateEl   = document.getElementById('tts-rate');
+  const rate     = rateEl ? parseFloat(rateEl.value) : 0.9;
+  const utt = new SpeechSynthesisUtterance(STATE.tts.chunks[STATE.tts.chunkIdx]);
+  utt.lang  = 'vi-VN';
+  utt.rate  = rate;
+  utt.pitch = 1.1;
+  if (ttsVoice) utt.voice = ttsVoice;
+  utt.onend = () => {
+    STATE.tts.chunkIdx++;
+    ttsReadNextChunk();
+  };
+  utt.onerror = (e) => {
+    if (e.error !== 'interrupted') {
+      STATE.tts.chunkIdx++;
+      ttsReadNextChunk();
+    }
+  };
+  STATE.tts.utterance = utt;
+  TTS.speak(utt);
+}
+
+function ttsStop() {
+  if (TTS) TTS.cancel();
+  STATE.tts.playing  = false;
+  STATE.tts.paused   = false;
+  STATE.tts.chunkIdx = 0;
+  STATE.tts.chunks   = [];
+  const playBtn = document.getElementById('btn-tts-play');
+  const stopBtn = document.getElementById('btn-tts-stop');
+  const ttsBarEl= document.getElementById('tts-bar');
+  if (playBtn)  { playBtn.textContent = '🔊 Đọc'; }
+  if (stopBtn)  { stopBtn.style.display = 'none'; }
+  if (ttsBarEl) { ttsBarEl.style.display = 'none'; }
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  loadFromStorage();
+
+  // Điền keys vào input
+  const gk = document.getElementById('gemini-key-input');
+  const dk = document.getElementById('openrouter-key-input');
+  const qk = document.getElementById('groq-key-input');
+  const ck = document.getElementById('cerebras-key-input');
+  if (gk && STATE.geminiKey)   gk.value = STATE.geminiKey;
+  if (dk && STATE.openrouterKey) dk.value = STATE.openrouterKey;
+  if (qk && STATE.groqKey)     qk.value = STATE.groqKey;
+  if (ck && STATE.cerebrasKey) ck.value = STATE.cerebrasKey;
+
+  // Key status badges
+  updateKeyStatus('gemini-key-status',   !!STATE.geminiKey);
+  updateKeyStatus('openrouter-key-status', !!STATE.openrouterKey);
+  updateKeyStatus('groq-key-status',     !!STATE.groqKey);
+  updateKeyStatus('cerebras-key-status', !!STATE.cerebrasKey);
+
+  showApiKeyBanner();
+  setPipelineMode(STATE.pipelineMode);
+
+  // Settings buttons
+  ['autosave','qa'].forEach(key => {
+    const btn = document.getElementById('toggle-' + key);
+    if (btn) {
+      btn.textContent = STATE.settings[key] ? 'Bật' : 'Tắt';
+      btn.style.color = STATE.settings[key] ? 'var(--green)' : '';
+    }
+  });
+
+  // TTS rate slider label
+  const rateEl = document.getElementById('tts-rate');
+  const rateLabel = document.getElementById('tts-rate-label');
+  if (rateEl && rateLabel) {
+    rateEl.addEventListener('input', () => {
+      rateLabel.textContent = parseFloat(rateEl.value).toFixed(1) + '×';
+    });
+  }
+
+  // TTS voices load
+  if (TTS && TTS.onvoiceschanged !== undefined) {
+    TTS.onvoiceschanged = () => {};
+  }
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
